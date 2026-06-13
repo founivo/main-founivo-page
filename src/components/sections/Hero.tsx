@@ -2,7 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion, Variants } from 'framer-motion';
-import { Zap, Search, Globe, ShieldCheck } from 'lucide-react';
+import { Zap, Search, Globe, ShieldCheck, ArrowRight } from 'lucide-react';
 import { PageWrapper } from '../shared/PageWrapper';
 import Button from '../ui/Button';
 
@@ -24,13 +24,13 @@ const Hero = () => {
       y: 0,
       transition: {
         duration: 0.6,
-        ease: [0.16, 1, 0.3, 1], // Custom cubic-bezier for smooth ease-out
+        ease: [0.16, 1, 0.3, 1],
       },
     },
   };
 
   return (
-    <section className="relative overflow-hidden pt-12 pb-24 md:pt-20 md:pb-32 mesh-gradient">
+    <section className="relative overflow-hidden pt-20 pb-32 md:pt-32 md:pb-40 mesh-gradient">
       {/* Decorative Elements */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-full pointer-events-none">
         <motion.div 
@@ -65,65 +65,43 @@ const Hero = () => {
           initial="hidden"
           animate="visible"
         >
-          <motion.div variants={itemVariants} className="flex justify-center mb-8">
-            <div className="glass px-5 py-2 rounded-full flex items-center gap-2 text-sm font-semibold text-[#0F6E56] border-[#0F6E56]/10 shadow-sm">
-              <Zap size={14} className="text-[#1D9E75]" />
-              <span>Trusted by 5,000+ top-tier investors</span>
+          <motion.div variants={itemVariants} className="flex justify-center mb-10">
+            <div className="glass px-6 py-2.5 rounded-full flex items-center gap-3 text-sm font-bold text-[#0F6E56] border-[#0F6E56]/15 shadow-sm">
+              <span className="flex h-2 w-2 rounded-full bg-[#1D9E75] animate-pulse" />
+              <span>Direct access to 5,000+ verified founders</span>
             </div>
           </motion.div>
 
-          <motion.h1 variants={itemVariants} className="mb-8 max-w-4xl mx-auto">
-            <span className="block text-[#04342C] text-5xl md:text-8xl font-black tracking-tight leading-[1.05] mb-2" style={{ fontFamily: "'Syne', sans-serif" }}>
+          <motion.h1 variants={itemVariants} className="mb-8 max-w-5xl mx-auto">
+            <span className="block text-[#04342C] text-6xl md:text-9xl font-black tracking-tight leading-[1] mb-2" style={{ fontFamily: "'Syne', sans-serif" }}>
               Find your next
             </span>
-            <span className="text-gradient text-5xl md:text-8xl font-black tracking-tight leading-[1.05]" style={{ fontFamily: "'Syne', sans-serif" }}>
+            <span className="text-gradient text-6xl md:text-9xl font-black tracking-tight leading-[1]" style={{ fontFamily: "'Syne', sans-serif" }}>
               Founder. Fast.
             </span>
           </motion.h1>
 
-          <motion.p variants={itemVariants} className="text-lg md:text-xl text-[#3a6b57] max-w-2xl mx-auto mb-12 leading-relaxed font-medium">
-            Founivo is the world&apos;s most trusted verified founder directory. Get direct access to the visionaries building the future.
+          <motion.p variants={itemVariants} className="text-xl md:text-2xl text-[#3a6b57] max-w-3xl mx-auto mb-14 leading-relaxed font-medium">
+            Founivo is the world&apos;s most trusted directory for founders. Skip the gatekeepers and connect directly with the visionaries building the future.
           </motion.p>
 
-          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
+          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <Link href="/find-founder" className="w-full sm:w-auto">
-              <Button className="w-full sm:px-10 py-4 bg-[#0F6E56] text-white text-lg rounded-2xl shadow-xl shadow-[#0F6E56]/20 btn-shine transition-transform hover:scale-105 active:scale-95">
-                Find a Founder <Search size={18} className="ml-2" />
+              <Button className="w-full sm:px-12 py-5 bg-[#0F6E56] text-white text-xl font-bold rounded-2xl shadow-2xl shadow-[#0F6E56]/30 btn-shine transition-all hover:scale-105 hover:-translate-y-1 active:scale-95">
+                Start Searching <Search size={22} className="ml-3" />
               </Button>
             </Link>
             <Link href="/become-founder" className="w-full sm:w-auto">
-              <Button className="w-full sm:px-10 py-4 glass text-[#0F6E56] text-lg rounded-2xl border-2 border-[#0F6E56]/10 hover:bg-[#0F6E56]/5 transition-all">
-                Join as a Founder
+              <Button className="w-full sm:px-12 py-5 glass text-[#0F6E56] text-xl font-bold rounded-2xl border-2 border-[#0F6E56]/20 hover:bg-[#0F6E56]/10 transition-all hover:shadow-lg">
+                Join as Founder <ArrowRight size={20} className="ml-2" />
               </Button>
             </Link>
-          </motion.div>
-
-          {/* Stats Section with Glassmorphism */}
-          <motion.div variants={itemVariants} className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 max-w-5xl mx-auto">
-            {[
-              { label: "Verified Founders", value: "500+", icon: <ShieldCheck size={18} /> },
-              { label: "Growth Capital", value: "$2.4B+", icon: <Globe size={18} /> },
-              { label: "Global Reach", value: "45+", icon: <Globe size={18} /> },
-              { label: "Active Investors", value: "1,200+", icon: <Zap size={18} /> }
-            ].map((stat, i) => (
-              <motion.div 
-                key={i} 
-                whileHover={{ y: -5 }}
-                className="glass p-6 rounded-3xl border-[#0F6E56]/5 text-center transition-all hover:shadow-lg hover:shadow-[#0F6E56]/5"
-              >
-                <div className="flex justify-center text-[#0F6E56] mb-3 opacity-60">
-                  {stat.icon}
-                </div>
-                <div className="text-3xl font-black text-[#04342C] mb-1" style={{ fontFamily: "'Syne', sans-serif" }}>{stat.value}</div>
-                <div className="text-xs uppercase tracking-widest font-bold text-[#3a6b57]/70">{stat.label}</div>
-              </motion.div>
-            ))}
           </motion.div>
         </motion.div>
       </PageWrapper>
 
       {/* Bottom Curve/Transition */}
-      <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-[#f8faf9] to-transparent" />
+      <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent" />
     </section>
   );
 };

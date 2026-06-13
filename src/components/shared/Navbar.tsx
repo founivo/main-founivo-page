@@ -1,12 +1,14 @@
-// src/components/shared/Navbar.tsx
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut, User } from "lucide-react";
 import { APP_NAME, APP_LOGO } from "@/data/constants";
+import { useUser } from "@/hooks/useUser";
+import { signout } from "@/app/auth/actions";
 
 const Navbar = () => {
   const [mobileMenu, setMobileMenu] = useState(false);
+  const { user, profile, loading } = useUser();
   const LogoIcon = APP_LOGO;
 
   return (
@@ -68,41 +70,85 @@ const Navbar = () => {
           ))}
         </div>
         <div className="hidden lg:flex items-center gap-4">
-          <Link href="/auth/login">
-            <button
-              className="hover:bg-[#0F6E56]/5 transition-colors"
-              style={{
-                color: "#0F6E56",
-                border: "2px solid rgba(15, 110, 86, 0.1)",
-                borderRadius: 14,
-                padding: "10px 20px",
-                fontSize: 14,
-                fontWeight: 600,
-                background: "transparent",
-                cursor: "pointer",
-              }}
-            >
-              Log in
-            </button>
-          </Link>
-          <Link href="/auth/signup">
-            <button
-              className="btn-shine"
-              style={{
-                background: "#0F6E56",
-                color: "#fff",
-                border: "none",
-                borderRadius: 14,
-                padding: "12px 22px",
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: "pointer",
-                boxShadow: "0 8px 20px rgba(15, 110, 86, 0.2)"
-              }}
-            >
-              Join Founivo
-            </button>
-          </Link>
+          {!loading && (
+            <>
+              {user ? (
+                <div className="flex items-center gap-4">
+                  <Link href={profile?.role === 'founder' ? '/dashboard/founder' : '/dashboard/user'}>
+                    <button
+                      className="hover:bg-[#0F6E56]/5 transition-colors flex items-center gap-2"
+                      style={{
+                        color: "#0F6E56",
+                        border: "2px solid rgba(15, 110, 86, 0.1)",
+                        borderRadius: 14,
+                        padding: "10px 20px",
+                        fontSize: 14,
+                        fontWeight: 600,
+                        background: "transparent",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <User size={16} />
+                      Dashboard
+                    </button>
+                  </Link>
+                  <button
+                    onClick={() => signout()}
+                    className="hover:text-red-600 transition-colors flex items-center gap-2"
+                    style={{
+                      color: "#3a6b57",
+                      fontSize: 14,
+                      fontWeight: 600,
+                      background: "transparent",
+                      border: "none",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <LogOut size={16} />
+                    Sign out
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <Link href="/sign-in">
+                    <button
+                      className="hover:bg-[#0F6E56]/5 transition-colors"
+                      style={{
+                        color: "#0F6E56",
+                        border: "2px solid rgba(15, 110, 86, 0.1)",
+                        borderRadius: 14,
+                        padding: "10px 20px",
+                        fontSize: 14,
+                        fontWeight: 600,
+                        background: "transparent",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Log in
+                    </button>
+                  </Link>
+                  <Link href="/sign-up">
+                    <button
+                      className="btn-shine"
+                      style={{
+                        background: "#0F6E56",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: 14,
+                        padding: "12px 22px",
+                        fontSize: 14,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        boxShadow: "0 8px 20px rgba(15, 110, 86, 0.2)"
+                      }}
+                    >
+                      Join Founivo
+                    </button>
+                  </Link>
+                </>
+              )}
+            </>
+          )}
         </div>
         <button
           className="lg:hidden p-2 glass rounded-xl"
@@ -145,27 +191,29 @@ const Navbar = () => {
             </Link>
           ))}
           <div className="flex flex-col gap-3 pt-4 border-t border-[#0F6E56]/5">
-            <Link href="/auth/signup" className="w-full">
+            {user ? (
+              <>
+                <Link href={profile?.role === 'founder' ? '/dashboard/founder' : '/dashboard/user'} className="w-full">
+                  <button
+                    className="w-full"
+                    style={{
+                      background: "#0F6E56",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 14,
+                      padding: "14px",
+                      fontSize: 16,
+                      fontWeight: 600,
+                    }}
+                    onClick={() => setMobileMenu(false)}
+                  >
+                    Dashboard
+                  </button>
+                </Link>
                 <button
-                className="w-full"
-                style={{
-                    background: "#0F6E56",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: 14,
-                    padding: "14px",
-                    fontSize: 16,
-                    fontWeight: 600,
-                }}
-                onClick={() => setMobileMenu(false)}
-                >
-                Join Founivo
-                </button>
-            </Link>
-            <Link href="/auth/login" className="w-full">
-                <button
-                className="w-full"
-                style={{
+                  onClick={() => { signout(); setMobileMenu(false); }}
+                  className="w-full"
+                  style={{
                     color: "#0F6E56",
                     border: "2px solid rgba(15, 110, 86, 0.1)",
                     borderRadius: 14,
@@ -173,12 +221,49 @@ const Navbar = () => {
                     fontSize: 16,
                     fontWeight: 600,
                     background: "transparent",
-                }}
-                onClick={() => setMobileMenu(false)}
+                  }}
                 >
-                Log in
+                  Sign out
                 </button>
-            </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/sign-up" className="w-full">
+                  <button
+                    className="w-full"
+                    style={{
+                      background: "#0F6E56",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 14,
+                      padding: "14px",
+                      fontSize: 16,
+                      fontWeight: 600,
+                    }}
+                    onClick={() => setMobileMenu(false)}
+                  >
+                    Join Founivo
+                  </button>
+                </Link>
+                <Link href="/sign-in" className="w-full">
+                  <button
+                    className="w-full"
+                    style={{
+                      color: "#0F6E56",
+                      border: "2px solid rgba(15, 110, 86, 0.1)",
+                      borderRadius: 14,
+                      padding: "14px",
+                      fontSize: 16,
+                      fontWeight: 600,
+                      background: "transparent",
+                    }}
+                    onClick={() => setMobileMenu(false)}
+                  >
+                    Log in
+                  </button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}
