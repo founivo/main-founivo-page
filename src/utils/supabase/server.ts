@@ -4,9 +4,18 @@ import { cookies } from 'next/headers'
 export async function createClient() {
   const cookieStore = await cookies()
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    // Return a dummy client or handle the error gracefully during build
+    // This prevents the build from crashing if env vars are missing
+    console.warn('Supabase env variables are missing. Client will not be initialized correctly.')
+  }
+
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl || '',
+    supabaseAnonKey || '',
     {
       cookies: {
         getAll() {
