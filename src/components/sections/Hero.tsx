@@ -30,7 +30,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative overflow-hidden pt-20 pb-32 md:pt-32 md:pb-40 mesh-gradient">
+    <section className="relative overflow-hidden pt-20 pb-32 md:pt-3 md:pb-40 mesh-gradient">
       {/* Decorative Elements */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-full pointer-events-none">
         <motion.div 
