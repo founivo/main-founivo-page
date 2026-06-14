@@ -5,6 +5,7 @@ import { Menu, X, LogOut, User, ChevronDown, UserPlus, Search } from "lucide-rea
 import { APP_NAME, APP_LOGO } from "@/data/constants";
 import { useUser } from "@/hooks/useUser";
 import { signout } from "@/app/auth/actions";
+
 import Button from "../ui/Button";
 
 const Navbar = () => {

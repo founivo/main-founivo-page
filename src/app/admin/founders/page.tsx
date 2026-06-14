@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { PageWrapper } from '@/components/shared/PageWrapper';
 import Button from '@/components/ui/Button';
@@ -28,7 +28,7 @@ interface FounderApplication {
 const ADMIN_EMAIL = 'nihalraza369@gmail.com'; 
 
 export default function AdminFoundersPage() {
-  const { user, profile, loading: userLoading } = useUser();
+  const { user, loading: userLoading } = useUser();
   const supabase = createClient();
   const router = useRouter();
   
@@ -37,19 +37,8 @@ export default function AdminFoundersPage() {
   const [error, setError] = useState<string | null>(null);
   const [actioningId, setActioningId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!userLoading) {
-      if (!user || user.email !== ADMIN_EMAIL) {
-        router.push('/');
-      } else {
-        fetchApplications();
-      }
-    }
-  }, [user, userLoading, router]);
-
-  async function fetchApplications() {
+  const fetchApplications = useCallback(async () => {
     try {
-      setLoading(true);
       const { data, error } = await supabase
         .from('founder_profiles')
         .select(`
@@ -63,13 +52,26 @@ export default function AdminFoundersPage() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setApplications((data as any) || []);
-    } catch (err: any) {
-      setError(err.message);
+      setApplications((data as unknown as FounderApplication[]) || []);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
     } finally {
       setLoading(false);
     }
-  }
+  }, [supabase]);
+
+  useEffect(() => {
+    if (!userLoading) {
+      if (!user || user.email !== ADMIN_EMAIL) {
+        router.push('/');
+      } else {
+        const timer = setTimeout(() => {
+          fetchApplications();
+        }, 0);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [user, userLoading, router, fetchApplications]);
 
   async function handleAction(id: string, status: 'approved' | 'rejected') {
     try {
@@ -82,8 +84,8 @@ export default function AdminFoundersPage() {
       if (error) throw error;
       
       setApplications(prev => prev.filter(app => app.id !== id));
-    } catch (err: any) {
-      alert('Error updating status: ' + err.message);
+    } catch (err: unknown) {
+      alert('Error updating status: ' + (err instanceof Error ? err.message : 'An unknown error occurred'));
     } finally {
       setActioningId(null);
     }

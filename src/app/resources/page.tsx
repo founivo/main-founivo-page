@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { PageWrapper } from '@/components/shared/PageWrapper';
-import { BookOpen, FileText, Video, Download, ExternalLink, Lightbulb } from 'lucide-react';
+import { BookOpen, FileText, Video, ExternalLink, Lightbulb } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Link from 'next/link';
 
@@ -85,8 +85,8 @@ export default function ResourcesPage() {
             <Lightbulb size={40} />
           </div>
           <div className="flex-1">
-            <h2 className="text-2xl font-bold font-syne text-[#04342C] mb-2">Can't find what you're looking for?</h2>
-            <p className="text-[#3a6b57]">Our team is constantly building new tools and guides. Suggest a resource you'd like to see.</p>
+            <h2 className="text-2xl font-bold font-syne text-[#04342C] mb-2">Can&apos;t find what you&apos;re looking for?</h2>
+            <p className="text-[#3a6b57]">Our team is constantly building new tools and guides. Suggest a resource you&apos;d like to see.</p>
           </div>
           <Button variant="outline" className="whitespace-nowrap">Suggest a Resource</Button>
         </div>

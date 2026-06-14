@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { PageWrapper } from '@/components/shared/PageWrapper';
-import { CheckCircle2, Search, Zap, UserPlus, CreditCard, MessageSquare } from 'lucide-react';
+import { CheckCircle2, Search, UserPlus, CreditCard, MessageSquare } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Link from 'next/link';
 
@@ -46,7 +46,7 @@ export default function HowItWorksPage() {
         <PageWrapper className="text-center">
           <h1 className="text-4xl md:text-5xl font-bold font-syne text-[#04342C] mb-6">How Founivo Works</h1>
           <p className="text-lg text-[#3a6b57] max-w-2xl mx-auto">
-            A simple, transparent process to help you connect with the world's most promising startup founders.
+            A simple, transparent process to help you connect with the world&apos;s most promising startup founders.
           </p>
         </PageWrapper>
       </section>

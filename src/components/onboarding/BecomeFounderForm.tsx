@@ -6,12 +6,10 @@ import { ArrowRight, CheckCircle2, User, Globe, Briefcase, Award, DollarSign, Lo
 import Link from 'next/link';
 import { useUser } from '@/hooks/useUser';
 import { createClient } from '@/utils/supabase/client';
-import { useRouter } from 'next/navigation';
 
 export default function BecomeFounderForm() {
   const { user, profile, loading: userLoading } = useUser();
   const supabase = createClient();
-  const router = useRouter();
 
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -28,9 +26,12 @@ export default function BecomeFounderForm() {
     website: '',
   });
 
+  const hasInitialized = React.useRef(false);
+
   useEffect(() => {
-    if (profile?.full_name) {
+    if (profile?.full_name && !hasInitialized.current) {
       setFormData(prev => ({ ...prev, name: profile.full_name || '' }));
+      hasInitialized.current = true;
     }
   }, [profile]);
 
@@ -75,9 +76,9 @@ export default function BecomeFounderForm() {
       if (founderError) throw founderError;
 
       setStep(5); // Success step
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error saving founder data:', err);
-      setError(err.message || 'Something went wrong. Please try again.');
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
