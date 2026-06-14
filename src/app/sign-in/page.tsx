@@ -47,7 +47,7 @@ export default async function LoginPage(props: { searchParams: Promise<{ error?:
                 <label htmlFor="password" className="block text-sm font-bold text-[#04342C]">
                   Password
                 </label>
-                <Link href="/forgot-password" size={24} className="text-xs font-bold text-[#0F6E56] hover:underline">
+                <Link href="/forgot-password" className="text-xs font-bold text-[#0F6E56] hover:underline">
                   Forgot password?
                 </Link>
               </div>
