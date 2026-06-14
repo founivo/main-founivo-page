@@ -1,6 +1,6 @@
 import { signup, signInWithGoogle, signInWithLinkedIn } from '../auth/actions'
 import Link from 'next/link'
-import PageWrapper from '@/components/shared/PageWrapper'
+import { PageWrapper } from '@/components/shared/PageWrapper'
 import Button from '@/components/ui/Button'
 
 export default async function SignupPage(props: { searchParams: Promise<{ error?: string }> }) {
