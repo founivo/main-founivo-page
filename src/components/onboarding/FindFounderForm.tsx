@@ -1,27 +1,111 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '@/components/ui/Button';
-import { ArrowRight, CheckCircle2, User, Search, Target, Briefcase } from 'lucide-react';
+import { ArrowRight, CheckCircle2, User, Search, Target, Briefcase, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useUser } from '@/hooks/useUser';
+import { createClient } from '@/utils/supabase/client';
+import { useRouter } from 'next/navigation';
 
 export default function FindFounderForm() {
+  const { user, profile, loading: userLoading } = useUser();
+  const supabase = createClient();
+  const router = useRouter();
+
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
     industry: '',
     location: '',
     purpose: '',
   });
 
+  useEffect(() => {
+    if (profile?.full_name) {
+      setFormData(prev => ({ ...prev, name: profile.full_name || '' }));
+    }
+  }, [profile]);
+
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStep(4); // Success step
+    if (!user) return;
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      // 1. Update profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          full_name: formData.name,
+          onboarding_completed: true,
+        })
+        .eq('id', user.id);
+
+      if (profileError) throw profileError;
+
+      // 2. Insert preferences
+      const { error: prefError } = await supabase
+        .from('user_preferences')
+        .upsert({
+          id: user.id,
+          industry: formData.industry,
+          location: formData.location,
+          purpose: formData.purpose,
+        });
+
+      if (prefError) throw prefError;
+
+      setStep(4); // Success step
+    } catch (err: any) {
+      console.error('Error saving onboarding data:', err);
+      setError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  if (userLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#0F6E56]" />
+      </div>
+    );
+  }
+
+  if (!user && !userLoading) {
+    return (
+      <div className="bg-white rounded-2xl p-12 shadow-sm border border-gray-100 text-center animate-fade-up">
+        <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-400">
+          <User size={40} />
+        </div>
+        <h2 className="text-2xl font-bold text-[#04342C] mb-4">Please log in to continue</h2>
+        <p className="text-[#3a6b57] mb-8 max-w-sm mx-auto">
+          You need to be logged in to complete your onboarding and access the founder directory.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link href="/sign-in">
+            <Button variant="primary" className="w-full sm:w-auto px-8 py-4">
+              Log In
+            </Button>
+          </Link>
+          <Link href="/sign-up">
+            <Button variant="outline" className="w-full sm:w-auto px-8 py-4">
+              Join Founivo
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-up">
@@ -45,6 +129,12 @@ export default function FindFounderForm() {
         </div>
 
         <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm">
+              {error}
+            </div>
+          )}
+
           {step === 1 && (
             <div className="animate-fade-up">
               <h2 className="text-xl font-bold text-[#04342C] mb-6 flex items-center gap-2">
@@ -65,13 +155,13 @@ export default function FindFounderForm() {
                   <label className="block text-sm font-medium text-[#3a6b57] mb-1">Email Address</label>
                   <input 
                     type="email" 
-                    placeholder="john@example.com"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0F6E56]/20 focus:border-[#0F6E56]"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed"
+                    value={user?.email || ''}
+                    disabled
                   />
+                  <p className="mt-1 text-xs text-gray-400 italic">Email cannot be changed during onboarding</p>
                 </div>
-                <Button onClick={nextStep} className="w-full py-4 mt-4 bg-[#0F6E56] text-white">
+                <Button onClick={nextStep} disabled={!formData.name} className="w-full py-4 mt-4 bg-[#0F6E56] text-white">
                   Continue <ArrowRight size={18} />
                 </Button>
               </div>
@@ -143,8 +233,16 @@ export default function FindFounderForm() {
                   <Button onClick={prevStep} className="flex-1 py-4 bg-gray-100 text-gray-600 hover:bg-gray-200">
                     Back
                   </Button>
-                  <Button onClick={handleSubmit} disabled={!formData.purpose} className="flex-[2] py-4 bg-[#0F6E56] text-white">
-                    Find Founders <Search size={18} />
+                  <Button 
+                    onClick={handleSubmit} 
+                    disabled={!formData.purpose || isSubmitting} 
+                    className="flex-[2] py-4 bg-[#0F6E56] text-white"
+                  >
+                    {isSubmitting ? (
+                      <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Saving...</span>
+                    ) : (
+                      <span className="flex items-center gap-2">Find Founders <Search size={18} /></span>
+                    )}
                   </Button>
                 </div>
               </div>

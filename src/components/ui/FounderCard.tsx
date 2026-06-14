@@ -5,7 +5,7 @@ import { CheckCircle, Lock, MapPin, Mail, Phone } from 'lucide-react';
 import { CAT_COLORS, CAT_TEXT } from '@/data/constants';
 import { Founder } from '@/data/founders';
 import { getInitials, maskEmail } from '@/lib/utils';
-import Image from 'next/image'; // Assuming you might add founder images later if available
+import Image from 'next/image';
 
 interface FounderCardProps {
   founder: Founder;
@@ -16,56 +16,115 @@ interface FounderCardProps {
 
 const FounderCard: React.FC<FounderCardProps> = ({ founder, canSeeEmail, canSeeSocial, canSeePhone }) => {
   return (
-    <div className="card-hover" style={{ borderRadius: 16, border: "1px solid #d0ede4", background: "#fff", overflow: "hidden" }}>
-      <div style={{ padding: 20 }}>
-        <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 14 }}>
-          {/* You can add an actual image here if you have them, otherwise use initials */}
-          {/* Example with Image:
-          {founder.imageUrl ? (
-            <Image src={founder.imageUrl} alt={founder.name} width={46} height={46} className="rounded-xl object-cover flex-shrink-0" />
-          ) : ( */}
-            <div style={{ width: 46, height: 46, borderRadius: 12, background: "#E1F5EE", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14, color: "#0F6E56", fontFamily: "'Syne',sans-serif", flexShrink: 0 }}>
-              {getInitials(founder.name)}
+    <div className="card-hover bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="p-5">
+        <div className="flex items-start gap-4 mb-4">
+          <div className="w-12 h-12 rounded-lg bg-[#E1F5EE] flex items-center justify-center font-bold text-sm text-[#0F6E56] font-syne flex-shrink-0">
+            {getInitials(founder.name)}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="font-syne font-bold text-sm text-[#04342C] truncate">{founder.name}</span>
+              {founder.verified && (
+                <div className="w-4 h-4 rounded-full bg-[#0F6E56] flex items-center justify-center flex-shrink-0">
+                  <CheckCircle size={10} color="#fff" />
+                </div>
+              )}
             </div>
-          {/* )} */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 14, color: "#04342C", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{founder.name}</span>
-              {founder.verified && <div style={{ width: 16, height: 16, borderRadius: "50%", background: "#0F6E56", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><CheckCircle size={10} color="#fff" /></div>}
-            </div>
-            <div style={{ fontSize: 12, color: "#3a6b57", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{founder.role} · {founder.company}</div>
-            <span style={{ display: "inline-block", fontSize: 11, padding: "2px 8px", borderRadius: 999, marginTop: 6, background: CAT_COLORS[founder.cat] || "#E1F5EE", color: CAT_TEXT[founder.cat] || "#085041" }}>{founder.cat}</span>
+            <div className="text-xs text-[#3a6b57] mt-0.5 truncate">{founder.role} · {founder.company}</div>
+            <span 
+              className="inline-block text-[10px] px-2 py-0.5 rounded-full mt-2 font-semibold"
+              style={{ 
+                backgroundColor: CAT_COLORS[founder.cat] || "#E1F5EE", 
+                color: CAT_TEXT[founder.cat] || "#085041" 
+              }}
+            >
+              {founder.cat}
+            </span>
           </div>
         </div>
-        <p style={{ fontSize: 12, color: "#3a6b57", lineHeight: 1.6, marginBottom: 12, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{founder.bio}</p>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
-          <MapPin size={12} color="#85b5a0" />
-          <span style={{ fontSize: 12, color: "#3a6b57" }}>{founder.location}</span>
+        
+        <p className="text-xs text-[#3a6b57] leading-relaxed mb-4 line-clamp-2 min-h-[2.5rem]">
+          {founder.bio}
+        </p>
+
+        <div className="flex items-center gap-1.5 mb-4 text-[#3a6b57]">
+          <MapPin size={12} className="text-[#85b5a0]" />
+          <span className="text-xs">{founder.location}</span>
         </div>
-        <div style={{ borderTop: "1px solid #e8f5ef", paddingTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Mail size={13} color={canSeeEmail ? "#0F6E56" : "#85b5a0"} />
-            {canSeeEmail
-              ? <span style={{ fontSize: 12, fontWeight: 500, color: "#04342C" }}>{founder.email}</span>
-              : <span style={{ fontSize: 12, color: "#85b5a0" }}>{maskEmail(founder.email)} <Lock size={10} /></span>}
+
+        <div className="border-t border-gray-100 pt-4 flex flex-col gap-2.5">
+          <div className="flex items-center gap-2.5">
+            <Mail size={13} className={canSeeEmail ? "text-[#0F6E56]" : "text-[#85b5a0]"} />
+            {canSeeEmail ? (
+              <span className="text-xs font-medium text-[#04342C]">{founder.email}</span>
+            ) : (
+              <span className="text-xs text-[#85b5a0] flex items-center gap-1">
+                {maskEmail(founder.email)} <Lock size={10} />
+              </span>
+            )}
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Phone size={13} color={canSeePhone ? "#0F6E56" : "#85b5a0"} />
-            {canSeePhone
-              ? <span style={{ fontSize: 12, fontWeight: 500, color: "#04342C" }}>{founder.phone}</span>
-              : <span style={{ fontSize: 12, color: "#85b5a0" }}>Pro plan only <Lock size={10} /></span>}
+          
+          <div className="flex items-center gap-2.5">
+            <Phone size={13} className={canSeePhone ? "text-[#0F6E56]" : "text-[#85b5a0]"} />
+            {canSeePhone ? (
+              <span className="text-xs font-medium text-[#04342C]">{founder.phone}</span>
+            ) : (
+              <span className="text-xs text-[#85b5a0] flex items-center gap-1">
+                Pro plan only <Lock size={10} />
+              </span>
+            )}
           </div>
+
           {canSeeSocial ? (
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", paddingTop: 4 }}>
-              {founder.linkedin && <Link href={`https://linkedin.com/in/${founder.linkedin}`} target="_blank" rel="noreferrer" style={{ padding: 6, borderRadius: 8, background: "#E1F5EE", display: "flex", alignItems: "center", justifyContent: "center" }}><Image src="/icons/linkedin.svg" alt="LinkedIn" width={12} height={12} /></Link>} {/* Use actual icons */}
-              {founder.instagram && <Link href={`https://instagram.com/${founder.instagram.replace('@', '')}`} target="_blank" rel="noreferrer" style={{ padding: 6, borderRadius: 8, background: "#E1F5EE", display: "flex", alignItems: "center", justifyContent: "center" }}><Image src="/icons/instagram.svg" alt="Instagram" width={12} height={12} /></Link>}
-              {founder.twitter && <Link href={`https://twitter.com/${founder.twitter.replace('@', '')}`} target="_blank" rel="noreferrer" style={{ padding: 6, borderRadius: 8, background: "#E1F5EE", display: "flex", alignItems: "center", justifyContent: "center" }}><Image src="/icons/twitter.svg" alt="Twitter" width={12} height={12} /></Link>}
-              {founder.github && <Link href={`https://github.com/${founder.github}`} target="_blank" rel="noreferrer" style={{ padding: 6, borderRadius: 8, background: "#E1F5EE", display: "flex", alignItems: "center", justifyContent: "center" }}><Image src="/icons/github.svg" alt="GitHub" width={12} height={12} /></Link>}
+            <div className="flex gap-2 flex-wrap pt-1">
+              {founder.linkedin && (
+                <Link 
+                  href={`https://linkedin.com/in/${founder.linkedin}`} 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="p-1.5 rounded bg-[#E1F5EE] hover:bg-[#b6ead7] transition-colors"
+                >
+                  <Image src="/icons/linkedin.svg" alt="LinkedIn" width={12} height={12} />
+                </Link>
+              )}
+              {founder.instagram && (
+                <Link 
+                  href={`https://instagram.com/${founder.instagram.replace('@', '')}`} 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="p-1.5 rounded bg-[#E1F5EE] hover:bg-[#b6ead7] transition-colors"
+                >
+                  <Image src="/icons/instagram.svg" alt="Instagram" width={12} height={12} />
+                </Link>
+              )}
+              {founder.twitter && (
+                <Link 
+                  href={`https://twitter.com/${founder.twitter.replace('@', '')}`} 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="p-1.5 rounded bg-[#E1F5EE] hover:bg-[#b6ead7] transition-colors"
+                >
+                  <Image src="/icons/twitter.svg" alt="Twitter" width={12} height={12} />
+                </Link>
+              )}
+              {founder.github && (
+                <Link 
+                  href={`https://github.com/${founder.github}`} 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="p-1.5 rounded bg-[#E1F5EE] hover:bg-[#b6ead7] transition-colors"
+                >
+                  <Image src="/icons/github.svg" alt="GitHub" width={12} height={12} />
+                </Link>
+              )}
             </div>
           ) : (
-            <div style={{ display: "flex", alignItems: "center", gap: 6, paddingTop: 4 }}>
-              <Lock size={12} color="#85b5a0" />
-              <span style={{ fontSize: 12, color: "#85b5a0" }}>Socials locked — <Link href="/pricing" style={{ color: "#0F6E56" }}>upgrade</Link></span>
+            <div className="flex items-center gap-1.5 pt-1 text-[#85b5a0]">
+              <Lock size={12} />
+              <span className="text-xs">
+                Socials locked — <Link href="/pricing" className="text-[#0F6E56] hover:underline font-medium">upgrade</Link>
+              </span>
             </div>
           )}
         </div>

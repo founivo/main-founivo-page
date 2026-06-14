@@ -1,87 +1,82 @@
-import React from 'react';
-import Link from 'next/link';
-import { signup, signInWithGoogle, signInWithLinkedIn } from '@/app/auth/actions';
-import { PageWrapper } from '@/components/shared/PageWrapper';
-import Button from '@/components/ui/Button';
-
-export const metadata = {
-  title: "Sign Up - Founivo",
-  description: "Create your Founivo account to get access to the verified founder directory.",
-};
+import { signup, signInWithGoogle, signInWithLinkedIn } from '../auth/actions'
+import Link from 'next/link'
+import PageWrapper from '@/components/shared/PageWrapper'
+import Button from '@/components/ui/Button'
 
 export default async function SignupPage(props: { searchParams: Promise<{ error?: string }> }) {
   const searchParams = await props.searchParams;
+
   return (
-    <div className="min-h-[calc(100vh-160px)] flex items-center justify-center py-16">
-      <PageWrapper className="max-w-md w-full">
-        <div className="bg-white p-8 rounded-2xl shadow-xl border border-[#d0ede4] text-center">
-          <h1 className="font-['Syne'] font-extrabold text-3xl text-[#04342C] mb-4">
-            Get Started with Founivo
-          </h1>
-          <p className="text-sm text-[#3a6b57] mb-8">
-            Create your account and start connecting with verified founders.
+    <div className="min-h-screen bg-[#f8faf9] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-inter">
+      <PageWrapper className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="text-center mb-10">
+          <h2 className="text-4xl font-black text-[#04342C] font-syne tracking-tight">
+            Create account
+          </h2>
+          <p className="mt-2 text-[#3a6b57]">
+            Join the Founivo community today
           </p>
+        </div>
 
-          {searchParams.error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-lg mb-6 text-sm text-left">
-              {searchParams.error}
-            </div>
-          )}
-
-          <form action={signup} className="space-y-6">
+        <div className="bg-white py-8 px-4 border border-[#d0ede4] sm:rounded-2xl sm:px-10">
+          <form action={signup} className="space-y-5">
+            {searchParams.error && (
+              <div className="bg-red-50 text-red-500 p-3 rounded-lg text-sm font-medium border border-red-100">
+                {searchParams.error}
+              </div>
+            )}
             <div>
-              <label htmlFor="full_name" className="sr-only">Full Name</label>
-              <input
-                id="full_name"
-                name="full_name"
-                type="text"
-                autoComplete="name"
-                required
-                className="w-full px-4 py-3 border border-[#d0ede4] rounded-lg focus:ring-2 focus:ring-[#0F6E56] focus:border-transparent outline-none text-[#04342C] text-sm"
-                placeholder="Full Name"
-              />
-            </div>
-            <div>
-              <label htmlFor="email" className="sr-only">Email address</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="w-full px-4 py-3 border border-[#d0ede4] rounded-lg focus:ring-2 focus:ring-[#0F6E56] focus:border-transparent outline-none text-[#04342C] text-sm"
-                placeholder="Email address"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="w-full px-4 py-3 border border-[#d0ede4] rounded-lg focus:ring-2 focus:ring-[#0F6E56] focus:border-transparent outline-none text-[#04342C] text-sm"
-                placeholder="Password"
-              />
-            </div>
-            
-            <div className="text-left">
-              <label className="block text-sm font-medium text-[#04342C] mb-2">I am a:</label>
-              <div className="flex space-x-4">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input type="radio" name="role" value="user" defaultChecked className="text-[#0F6E56] focus:ring-[#0F6E56]" />
-                  <span className="text-sm text-[#3a6b57]">Investor/User</span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input type="radio" name="role" value="founder" className="text-[#0F6E56] focus:ring-[#0F6E56]" />
-                  <span className="text-sm text-[#3a6b57]">Founder</span>
-                </label>
+              <label htmlFor="full_name" className="block text-sm font-bold text-[#04342C]">
+                Full Name
+              </label>
+              <div className="mt-1">
+                <input
+                  id="full_name"
+                  name="full_name"
+                  type="text"
+                  required
+                  className="appearance-none block w-full px-4 py-3 border border-[#d0ede4] rounded-xl shadow-sm placeholder-[#85b5a0] focus:outline-none focus:ring-[#0F6E56] focus:border-[#0F6E56] sm:text-sm"
+                  placeholder="John Doe"
+                />
               </div>
             </div>
 
-            <Button type="submit" className="w-full px-4 py-3 bg-[#0F6E56] text-white hover:bg-[#0C5A4A]">
-              Create Account
+            <div>
+              <label htmlFor="email" className="block text-sm font-bold text-[#04342C]">
+                Email address
+              </label>
+              <div className="mt-1">
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  className="appearance-none block w-full px-4 py-3 border border-[#d0ede4] rounded-xl shadow-sm placeholder-[#85b5a0] focus:outline-none focus:ring-[#0F6E56] focus:border-[#0F6E56] sm:text-sm"
+                  placeholder="name@company.com"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-bold text-[#04342C]">
+                Password
+              </label>
+              <div className="mt-1">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  className="appearance-none block w-full px-4 py-3 border border-[#d0ede4] rounded-xl shadow-sm placeholder-[#85b5a0] focus:outline-none focus:ring-[#0F6E56] focus:border-[#0F6E56] sm:text-sm"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+
+            <Button type="submit" className="w-full py-4 text-base">
+              Get Started
             </Button>
           </form>
 

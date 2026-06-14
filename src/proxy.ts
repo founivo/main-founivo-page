@@ -1,23 +1,46 @@
-import { type NextRequest } from 'next/server'
-import { updateSession } from '@/utils/supabase/middleware'
-import { createClient } from '@/utils/supabase/server'
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
 
-export async function proxy(request: NextRequest) {
-  // Update session
-  const supabaseResponse = await updateSession(request)
-  
-  const { nextUrl } = request
-  const isDashboardRoute = nextUrl.pathname.startsWith('/dashboard')
-  
-  if (isDashboardRoute) {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) {
-      return Response.redirect(new URL('/sign-in', request.url))
+export async function middleware(request: NextRequest) {
+  let supabaseResponse = NextResponse.next({
+    request,
+  })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          supabaseResponse = NextResponse.next({
+            request,
+          })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          )
+        },
+      },
     }
-    
-    // Fetch user role from profiles
+  )
+
+  // IMPORTANT: refresh session if it exists
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const { nextUrl } = request
+  const isProtectedPage = nextUrl.pathname.startsWith('/dashboard') || 
+                         nextUrl.pathname.startsWith('/onboarding') || 
+                         nextUrl.pathname.startsWith('/choose-role')
+
+  if (isProtectedPage && !user) {
+    return NextResponse.redirect(new URL('/sign-in', request.url))
+  }
+
+  // Handle dashboard sub-route checks if user is logged in
+  if (user && nextUrl.pathname.startsWith('/dashboard')) {
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
@@ -27,11 +50,11 @@ export async function proxy(request: NextRequest) {
     const role = profile?.role
     
     if (nextUrl.pathname.startsWith('/dashboard/user') && role !== 'user') {
-      return Response.redirect(new URL('/dashboard/founder', request.url))
+      return NextResponse.redirect(new URL('/dashboard/founder', request.url))
     }
     
     if (nextUrl.pathname.startsWith('/dashboard/founder') && role !== 'founder') {
-      return Response.redirect(new URL('/dashboard/user', request.url))
+      return NextResponse.redirect(new URL('/dashboard/user', request.url))
     }
   }
 
@@ -40,13 +63,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
-     */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

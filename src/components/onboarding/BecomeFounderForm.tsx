@@ -1,15 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '@/components/ui/Button';
-import { ArrowRight, CheckCircle2, User, Globe, Briefcase, Award, DollarSign } from 'lucide-react';
+import { ArrowRight, CheckCircle2, User, Globe, Briefcase, Award, DollarSign, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useUser } from '@/hooks/useUser';
+import { createClient } from '@/utils/supabase/client';
+import { useRouter } from 'next/navigation';
 
 export default function BecomeFounderForm() {
+  const { user, profile, loading: userLoading } = useUser();
+  const supabase = createClient();
+  const router = useRouter();
+
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
     role: '',
     company: '',
     category: '',
@@ -19,13 +28,68 @@ export default function BecomeFounderForm() {
     website: '',
   });
 
+  useEffect(() => {
+    if (profile?.full_name) {
+      setFormData(prev => ({ ...prev, name: profile.full_name || '' }));
+    }
+  }, [profile]);
+
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStep(5); // Success step
+    if (!user) return;
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      // 1. Update profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          full_name: formData.name,
+          role: 'founder',
+          onboarding_completed: true,
+        })
+        .eq('id', user.id);
+
+      if (profileError) throw profileError;
+
+      // 2. Insert founder profile
+      const { error: founderError } = await supabase
+        .from('founder_profiles')
+        .upsert({
+          id: user.id,
+          role: formData.role,
+          company: formData.company,
+          category: formData.category,
+          bio: formData.bio,
+          linkedin: formData.linkedin,
+          twitter: formData.twitter,
+          website: formData.website,
+          status: 'pending',
+        });
+
+      if (founderError) throw founderError;
+
+      setStep(5); // Success step
+    } catch (err: any) {
+      console.error('Error saving founder data:', err);
+      setError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  if (userLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#0F6E56]" />
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-up">
@@ -49,6 +113,12 @@ export default function BecomeFounderForm() {
         </div>
 
         <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm">
+              {error}
+            </div>
+          )}
+
           {step === 1 && (
             <div className="animate-fade-up">
               <h2 className="text-xl font-bold text-[#04342C] mb-6 flex items-center gap-2">
@@ -69,13 +139,13 @@ export default function BecomeFounderForm() {
                   <label className="block text-sm font-medium text-[#3a6b57] mb-1">Email Address</label>
                   <input 
                     type="email" 
-                    placeholder="jane@startup.com"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0F6E56]/20 focus:border-[#0F6E56]"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed"
+                    value={user?.email || ''}
+                    disabled
                   />
+                  <p className="mt-1 text-xs text-gray-400 italic">Email cannot be changed during onboarding</p>
                 </div>
-                <Button onClick={nextStep} className="w-full py-4 mt-4 bg-[#0F6E56] text-white">
+                <Button onClick={nextStep} disabled={!formData.name} className="w-full py-4 mt-4 bg-[#0F6E56] text-white">
                   Continue <ArrowRight size={18} />
                 </Button>
               </div>
@@ -128,7 +198,7 @@ export default function BecomeFounderForm() {
                   <Button onClick={prevStep} className="flex-1 py-4 bg-gray-100 text-gray-600 hover:bg-gray-200">
                     Back
                   </Button>
-                  <Button onClick={nextStep} className="flex-[2] py-4 bg-[#0F6E56] text-white">
+                  <Button onClick={nextStep} disabled={!formData.role || !formData.company || !formData.category} className="flex-[2] py-4 bg-[#0F6E56] text-white">
                     Next Step <ArrowRight size={18} />
                   </Button>
                 </div>
@@ -177,7 +247,7 @@ export default function BecomeFounderForm() {
                   <Button onClick={prevStep} className="flex-1 py-4 bg-gray-100 text-gray-600 hover:bg-gray-200">
                     Back
                   </Button>
-                  <Button onClick={nextStep} className="flex-[2] py-4 bg-[#0F6E56] text-white">
+                  <Button onClick={nextStep} disabled={!formData.bio} className="flex-[2] py-4 bg-[#0F6E56] text-white">
                     Next Step <ArrowRight size={18} />
                   </Button>
                 </div>
@@ -209,8 +279,16 @@ export default function BecomeFounderForm() {
                   <Button onClick={prevStep} className="flex-1 py-4 bg-gray-100 text-gray-600 hover:bg-gray-200">
                     Back
                   </Button>
-                  <Button onClick={handleSubmit} className="flex-[2] py-4 bg-[#0F6E56] text-white">
-                    Apply Now <ArrowRight size={18} />
+                  <Button 
+                    onClick={handleSubmit} 
+                    disabled={isSubmitting} 
+                    className="flex-[2] py-4 bg-[#0F6E56] text-white"
+                  >
+                    {isSubmitting ? (
+                      <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</span>
+                    ) : (
+                      <span className="flex items-center gap-2">Apply Now <ArrowRight size={18} /></span>
+                    )}
                   </Button>
                 </div>
               </div>

@@ -4,6 +4,7 @@ import { Inter, Syne } from "next/font/google"; // Import fonts
 import "./globals.css";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
+import { createClient } from "@/utils/supabase/server";
 
 // Configure fonts
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -14,15 +15,18 @@ export const metadata: Metadata = {
   description: "Founivo is the verified founder directory trusted by investors, recruiters, and entrepreneurs. Get direct access to emails, socials, and phone numbers.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
-    <html lang="en" className={`${inter.variable} ${syne.variable}`}>
+    <html lang="en" className={`${inter.variable} ${syne.variable}`} suppressHydrationWarning>
       <body className="min-h-screen font-sans" style={{ background: "#f8faf9" }}>
-        <Navbar />
+        <Navbar key={user?.id || 'guest'} />
         <main>{children}</main>
         <Footer />
       </body>

@@ -2,43 +2,65 @@
 import React from 'react';
 import Link from 'next/link';
 import { CheckCircle, Lock } from 'lucide-react';
-import { PLANS } from '@/data/constants'; // Assuming you import PLANS here if not passed directly
+import { PLANS } from '@/data/constants';
+import Button from './Button';
 
 interface PlanCardProps {
-  plan: typeof PLANS[0]; // Type of a single plan object
+  plan: typeof PLANS[0];
 }
 
 const PlanCard: React.FC<PlanCardProps> = ({ plan: p }) => {
   return (
-    <div key={p.name} className="card-hover" style={{ borderRadius: 20, border: p.highlight ? "2px solid #0F6E56" : "1px solid #d0ede4", padding: 28, position: "relative", background: p.highlight ? "#f0faf6" : "#fff" }}>
-      {p.highlight && <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", padding: "4px 16px", borderRadius: 999, fontSize: 12, fontWeight: 600, color: "#fff", background: "#0F6E56", whiteSpace: "nowrap" }}>Most popular</div>}
-      {!p.highlight && p.name === "Annual" && <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", padding: "4px 16px", borderRadius: 999, fontSize: 12, fontWeight: 600, color: "#085041", background: "#E1F5EE", border: "1px solid #9FE1CB", whiteSpace: "nowrap" }}>Best value</div>}
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: "#0F6E56", marginBottom: 4 }}>{p.name}</div>
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 4 }}>
-          <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 38, color: "#04342C" }}>{p.price}</span>
-          <span style={{ fontSize: 13, color: "#3a6b57", marginBottom: 6 }}>{p.period}</span>
+    <div key={p.name} className={`relative p-8 rounded-xl border transition-all ${p.highlight ? "border-[#0F6E56] bg-emerald-50/30" : "border-gray-200 bg-white"}`}>
+      {p.highlight && (
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#0F6E56] text-white text-[10px] font-bold uppercase tracking-widest px-4 py-1 rounded-full whitespace-nowrap">
+          Most Popular
         </div>
-        <div style={{ fontSize: 12, color: "#3a6b57", marginTop: 4 }}>{p.desc}</div>
+      )}
+      {!p.highlight && p.name === "Annual" && (
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#E1F5EE] text-[#085041] border border-[#9FE1CB] text-[10px] font-bold uppercase tracking-widest px-4 py-1 rounded-full whitespace-nowrap">
+          Best Value
+        </div>
+      )}
+      
+      <div className="mb-8">
+        <div className="text-xs font-bold text-[#0F6E56] uppercase tracking-wider mb-2">{p.name}</div>
+        <div className="flex items-baseline gap-1">
+          <span className="font-syne font-bold text-4xl text-[#04342C]">{p.price}</span>
+          <span className="text-sm text-[#3a6b57] font-medium">{p.period}</span>
+        </div>
+        <div className="text-sm text-[#3a6b57] mt-3 leading-relaxed">{p.desc}</div>
       </div>
-      <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", display: "flex", flexDirection: "column", gap: 10 }}>
+
+      <ul className="space-y-4 mb-8">
         {p.features.map(f => (
-          <li key={f} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 13, color: "#04342C" }}>
-            <CheckCircle size={15} color="#0F6E56" style={{ marginTop: 1, flexShrink: 0 }} />{f}
+          <li key={f} className="flex items-start gap-3 text-sm text-[#04342C] font-medium">
+            <CheckCircle size={16} className="text-[#0F6E56] mt-0.5 flex-shrink-0" />
+            <span>{f}</span>
           </li>
         ))}
         {p.locked.map(f => (
-          <li key={f} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 13, color: "#85b5a0" }}>
-            <Lock size={15} style={{ marginTop: 1, flexShrink: 0 }} />{f}
+          <li key={f} className="flex items-start gap-3 text-sm text-gray-400 font-medium">
+            <Lock size={16} className="mt-0.5 flex-shrink-0" />
+            <span>{f}</span>
           </li>
         ))}
       </ul>
-      <Link href="/auth/signup" className="w-full">
-        <button style={{ width: "100%", padding: "12px 0", borderRadius: 12, fontWeight: 600, fontSize: 14, cursor: "pointer", background: p.highlight ? "#0F6E56" : "transparent", color: p.highlight ? "#fff" : "#0F6E56", border: "1.5px solid #0F6E56" }}>
+
+      <Link href="/sign-up" className="w-full">
+        <Button 
+          variant={p.highlight ? "primary" : "outline"} 
+          className="w-full py-3 bg-white"
+        >
           {p.cta}
-        </button>
+        </Button>
       </Link>
-      {p.trial && <p style={{ textAlign: "center", fontSize: 12, color: "#85b5a0", marginTop: 10 }}>7-day free trial included</p>}
+      
+      {p.trial && (
+        <p className="text-center text-xs text-[#85b5a0] mt-4 font-medium italic">
+          7-day free trial included
+        </p>
+      )}
     </div>
   );
 };

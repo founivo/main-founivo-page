@@ -51,6 +51,15 @@ h4,
   }
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @keyframes float {
   0%,
   100% {
@@ -73,6 +82,10 @@ h4,
 
 .animate-fade-up {
   animation: fadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
 }
 
 .animate-float {
@@ -103,24 +116,19 @@ h4,
 }
 
 .glass {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
 }
 
 .dot-pattern {
   background-image: radial-gradient(circle, var(--brand-600) 1px, transparent 1px);
   background-size: 32px 32px;
-  opacity: 0.08;
+  opacity: 0.05;
 }
 
 .mesh-gradient {
-  background: 
-    radial-gradient(at 0% 0%, rgba(15, 110, 86, 0.15) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(29, 158, 117, 0.1) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(15, 110, 86, 0.05) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, rgba(29, 158, 117, 0.12) 0px, transparent 50%);
+  background: #f9fbfa;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .btn-shine {
@@ -128,29 +136,14 @@ h4,
   overflow: hidden;
 }
 
-.btn-shine::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transform: translateX(-100%) skewX(-15deg);
-  transition: 0.5s;
-}
-
-.btn-shine:hover::after {
-  animation: shine 0.8s forwards;
-}
-
 .card-hover {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s ease-in-out;
+  border: 1px solid #e5e7eb;
 }
 
 .card-hover:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 50px rgba(15, 110, 86, 0.15);
+  border-color: var(--brand-500);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .scrollbar-hide::-webkit-scrollbar {
@@ -163,7 +156,5 @@ h4,
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, var(--brand-900) 0%, var(--brand-600) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--brand-900);
 }

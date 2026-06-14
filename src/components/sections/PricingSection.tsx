@@ -7,24 +7,24 @@ import { PLANS } from '@/data/constants';
 interface PricingSectionProps {
   title?: string;
   subtitle?: string;
-  showAllPlans?: boolean; // To control how many plans are shown on the homepage vs. pricing page
+  showAllPlans?: boolean;
 }
 
 const PricingSection: React.FC<PricingSectionProps> = ({
   title = "Simple, transparent pricing",
-  subtitle = "One paying user covers your entire monthly cost. Start today.",
+  subtitle = "Choose the plan that fits your business needs. One connection covers your cost.",
   showAllPlans = true,
 }) => {
-  const plansToShow = showAllPlans ? PLANS : PLANS.filter(p => p.name === "Starter" || p.name === "Pro"); // Example: only show 2 on home
+  const plansToShow = showAllPlans ? PLANS : PLANS.slice(0, 3);
 
   return (
-    <section id="pricing" style={{ padding: "80px 16px", background: "#fff" }}>
+    <section id="pricing" className="py-24 bg-[#f9fbfa] border-t border-gray-100">
       <PageWrapper>
-        <div style={{ textAlign: "center", marginBottom: 56 }}>
-          <h2 style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: "clamp(26px,4vw,38px)", color: "#04342C", marginBottom: 12 }}>{title}</h2>
-          <p style={{ color: "#3a6b57", fontSize: 15 }}>{subtitle}</p>
+        <div className="text-center mb-16">
+          <h2 className="font-syne font-bold text-3xl md:text-4xl text-[#04342C] mb-4">{title}</h2>
+          <p className="text-[#3a6b57] text-lg max-w-2xl mx-auto">{subtitle}</p>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 20 }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {plansToShow.map(p => (
             <PlanCard key={p.name} plan={p} />
           ))}

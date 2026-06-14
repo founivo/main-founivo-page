@@ -1,65 +1,71 @@
-import React from 'react';
-import Link from 'next/link';
-import { login, signInWithGoogle, signInWithLinkedIn } from '@/app/auth/actions';
-import { PageWrapper } from '@/components/shared/PageWrapper';
-import Button from '@/components/ui/Button';
-
-export const metadata = {
-  title: "Login - Founivo",
-  description: "Log in to your Founivo account to access the verified founder directory.",
-};
+import { login, signInWithGoogle, signInWithLinkedIn } from '../auth/actions'
+import Link from 'next/link'
+import PageWrapper from '@/components/shared/PageWrapper'
+import Button from '@/components/ui/Button'
 
 export default async function LoginPage(props: { searchParams: Promise<{ error?: string }> }) {
   const searchParams = await props.searchParams;
+  
   return (
-    <div className="min-h-[calc(100vh-160px)] flex items-center justify-center py-16">
-      <PageWrapper className="max-w-md w-full">
-        <div className="bg-white p-8 rounded-2xl shadow-xl border border-[#d0ede4] text-center">
-          <h1 className="font-['Syne'] font-extrabold text-3xl text-[#04342C] mb-4">
-            Welcome Back
-          </h1>
-          <p className="text-sm text-[#3a6b57] mb-8">
-            Log in to continue connecting with founders.
+    <div className="min-h-screen bg-[#f8faf9] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-inter">
+      <PageWrapper className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="text-center mb-10">
+          <h2 className="text-4xl font-black text-[#04342C] font-syne tracking-tight">
+            Welcome back
+          </h2>
+          <p className="mt-2 text-[#3a6b57]">
+            Log in to your Founivo account
           </p>
+        </div>
 
-          {searchParams.error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-2 rounded-lg mb-6 text-sm text-left">
-              {searchParams.error}
-            </div>
-          )}
-
+        <div className="bg-white py-8 px-4 border border-[#d0ede4] sm:rounded-2xl sm:px-10">
           <form action={login} className="space-y-6">
+            {searchParams.error && (
+              <div className="bg-red-50 text-red-500 p-3 rounded-lg text-sm font-medium border border-red-100">
+                {searchParams.error}
+              </div>
+            )}
             <div>
-              <label htmlFor="email" className="sr-only">Email address</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="w-full px-4 py-3 border border-[#d0ede4] rounded-lg focus:ring-2 focus:ring-[#0F6E56] focus:border-transparent outline-none text-[#04342C] text-sm"
-                placeholder="Email address"
-              />
+              <label htmlFor="email" className="block text-sm font-bold text-[#04342C]">
+                Email address
+              </label>
+              <div className="mt-1">
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  className="appearance-none block w-full px-4 py-3 border border-[#d0ede4] rounded-xl shadow-sm placeholder-[#85b5a0] focus:outline-none focus:ring-[#0F6E56] focus:border-[#0F6E56] sm:text-sm"
+                  placeholder="name@company.com"
+                />
+              </div>
             </div>
+
             <div>
-              <label htmlFor="password" className="sr-only">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="w-full px-4 py-3 border border-[#d0ede4] rounded-lg focus:ring-2 focus:ring-[#0F6E56] focus:border-transparent outline-none text-[#04342C] text-sm"
-                placeholder="Password"
-              />
+              <div className="flex items-center justify-between">
+                <label htmlFor="password" className="block text-sm font-bold text-[#04342C]">
+                  Password
+                </label>
+                <Link href="/forgot-password" size={24} className="text-xs font-bold text-[#0F6E56] hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
+              <div className="mt-1">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  className="appearance-none block w-full px-4 py-3 border border-[#d0ede4] rounded-xl shadow-sm placeholder-[#85b5a0] focus:outline-none focus:ring-[#0F6E56] focus:border-[#0F6E56] sm:text-sm"
+                  placeholder="••••••••"
+                />
+              </div>
             </div>
-            <div className="text-right">
-              <Link href="/forgot-password" className="text-sm font-medium text-[#0F6E56] hover:underline">
-                Forgot password?
-              </Link>
-            </div>
-            <Button type="submit" className="w-full px-4 py-3 bg-[#0F6E56] text-white hover:bg-[#0C5A4A]">
-              Log In
+
+            <Button type="submit" className="w-full py-4 text-base">
+              Sign In
             </Button>
           </form>
 

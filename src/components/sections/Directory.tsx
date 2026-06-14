@@ -23,56 +23,56 @@ const Directory = () => {
   });
 
   return (
-    <section id="directory" className="py-24 bg-white">
+    <section id="directory" className="py-24 bg-white border-t border-gray-50">
       <PageWrapper>
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div>
             <motion.h2 
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-3xl md:text-4xl font-bold mb-2"
-              style={{ fontFamily: "'Syne',sans-serif", color: "#04342C" }}
+              className="text-3xl md:text-4xl font-bold mb-2 font-syne text-[#04342C]"
             >
-              Founder directory
+              Founder Directory
             </motion.h2>
             <motion.p 
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="text-sm font-medium"
-              style={{ color: "#3a6b57" }}
+              transition={{ delay: 0.1 }}
+              className="text-sm font-medium text-[#3a6b57]"
             >
-              {filteredFounders.length} founders found
+              {filteredFounders.length} founders found matching your criteria
             </motion.p>
           </div>
           {plan === "none" && (
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl text-sm font-semibold"
-              style={{ background: "#E1F5EE", color: "#0F6E56" }}
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-2.5 px-4 py-2 rounded-lg text-sm font-semibold bg-[#E1F5EE] text-[#0F6E56] border border-[#b6ead7]"
             >
               <Lock size={14} /> 
-              <span>Select a plan to unlock details</span>
+              <span>Select a plan to unlock full details</span>
             </motion.div>
           )}
         </div>
 
         {/* Plan selector */}
-        <div className="flex flex-wrap gap-3 mb-8">
-          {[{ key: "none", label: "Free — browse" }, { key: "starter", label: "$200/mo — email + socials" }, { key: "pro", label: "$500/mo — + phone" }, { key: "annual", label: "$3k/yr — all unlocked" }].map(({ key, label }) => (
+        <div className="flex flex-wrap gap-2 mb-8">
+          {[
+            { key: "none", label: "Free Viewer" }, 
+            { key: "starter", label: "Starter ($200/mo)" }, 
+            { key: "pro", label: "Professional ($500/mo)" }, 
+            { key: "annual", label: "Enterprise (Annual)" }
+          ].map(({ key, label }) => (
             <button 
               key={key} 
               onClick={() => setPlan(key as typeof plan)} 
-              className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition-all ${plan === key ? 'shadow-lg shadow-[#0F6E56]/20' : ''}`}
-              style={{ 
-                cursor: "pointer", 
-                background: plan === key ? "#0F6E56" : "#fff", 
-                color: plan === key ? "#fff" : "#0F6E56", 
-                border: `2px solid ${plan === key ? "#0F6E56" : "rgba(15, 110, 86, 0.1)"}` 
-              }}
+              className={`px-5 py-2 rounded-lg text-xs font-bold transition-all border ${
+                plan === key 
+                  ? 'bg-[#0F6E56] text-white border-[#0F6E56]' 
+                  : 'bg-white text-[#3a6b57] border-gray-200 hover:bg-gray-50'
+              }`}
             >
               {label}
             </button>
@@ -80,41 +80,30 @@ const Directory = () => {
         </div>
 
         {/* Category filter */}
-        <div className="flex flex-wrap gap-2.5 mb-8">
+        <div className="flex flex-wrap gap-2 mb-10">
           {CATS.map((c, i) => (
-            <motion.button 
+            <button 
               key={c} 
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.03 }}
               onClick={() => setCat(c)} 
-              className="px-4 py-2 rounded-full text-xs font-bold transition-all hover:scale-105"
-              style={{ 
-                cursor: "pointer", 
-                background: cat === c ? "#0F6E56" : "#E1F5EE", 
-                color: cat === c ? "#fff" : "#085041", 
-                border: "none" 
-              }}
+              className={`px-4 py-1.5 rounded-md text-[11px] font-bold transition-all border uppercase tracking-wider ${
+                cat === c 
+                  ? 'bg-[#0F6E56] text-white border-[#0F6E56]' 
+                  : 'bg-[#E1F5EE] text-[#085041] border-transparent hover:border-[#0F6E56]/30'
+              }`}
             >
               {c}
-            </motion.button>
+            </button>
           ))}
         </div>
 
         {/* Search */}
         <div className="relative mb-12">
-          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: "#85b5a0" }} />
+          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#85b5a0]" />
           <input 
             value={search} 
             onChange={e => setSearch(e.target.value)} 
-            placeholder="Search by name or company..." 
-            className="w-full pl-12 pr-6 py-4 rounded-2xl border transition-all focus:border-[#0F6E56] focus:ring-4 focus:ring-[#0F6E56]/5 outline-none font-medium"
-            style={{ 
-              borderColor: "rgba(15, 110, 86, 0.1)", 
-              background: "#fff", 
-              fontSize: 15, 
-              color: "#04342C" 
-            }} 
+            placeholder="Search by name, company, or industry..." 
+            className="w-full pl-12 pr-6 py-4 rounded-xl border border-gray-200 focus:border-[#0F6E56] focus:ring-0 outline-none font-medium text-sm text-[#04342C] transition-colors"
           />
         </div>
 
@@ -128,9 +117,9 @@ const Directory = () => {
               <motion.div
                 key={f.id}
                 layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
               >
                 <FounderCard
