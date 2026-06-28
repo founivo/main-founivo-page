@@ -31,6 +31,15 @@ export default function FindFounderForm() {
     }
   }, [profile]);
 
+  useEffect(() => {
+    if (step === 4) {
+      const timer = setTimeout(() => {
+        window.location.href = process.env.NEXT_PUBLIC_USER_DASHBOARD_URL || 'http://localhost:3002';
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [step]);
+
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);
 
@@ -47,6 +56,7 @@ export default function FindFounderForm() {
         .from('profiles')
         .update({
           full_name: formData.name,
+          role: 'user',
           onboarding_completed: true,
         })
         .eq('id', user.id);
@@ -256,14 +266,20 @@ export default function FindFounderForm() {
                 <CheckCircle2 size={40} />
               </div>
               <h2 className="text-2xl font-bold text-[#04342C] mb-4">You&apos;re all set!</h2>
-              <p className="text-[#3a6b57] mb-8 max-w-sm mx-auto">
+              <p className="text-[#3a6b57] mb-4 max-w-sm mx-auto">
                 Based on your profile, we&apos;ve curated a list of founders that match your interests.
               </p>
-              <Link href="/#directory">
-                <Button className="px-8 py-4 bg-[#0F6E56] text-white">
-                  Go to Directory <ArrowRight size={18} />
-                </Button>
-              </Link>
+              <p className="text-sm text-gray-500 mb-8 animate-pulse">
+                Redirecting you to your User Dashboard...
+              </p>
+              <button 
+                onClick={() => {
+                  window.location.href = process.env.NEXT_PUBLIC_USER_DASHBOARD_URL || 'http://localhost:3002';
+                }}
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#0F6E56] text-white font-bold hover:bg-[#0c5945] transition-all"
+              >
+                Go to Dashboard <ArrowRight size={18} />
+              </button>
             </div>
           )}
         </div>

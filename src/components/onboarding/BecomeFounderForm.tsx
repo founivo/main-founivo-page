@@ -35,6 +35,15 @@ export default function BecomeFounderForm() {
     }
   }, [profile]);
 
+  useEffect(() => {
+    if (step === 5) {
+      const timer = setTimeout(() => {
+        window.location.href = process.env.NEXT_PUBLIC_FOUNDER_DASHBOARD_URL || 'http://localhost:3001';
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [step]);
+
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);
 
@@ -302,14 +311,20 @@ export default function BecomeFounderForm() {
                 <CheckCircle2 size={40} />
               </div>
               <h2 className="text-2xl font-bold text-[#04342C] mb-4">Application Received!</h2>
-              <p className="text-[#3a6b57] mb-8 max-w-sm mx-auto">
+              <p className="text-[#3a6b57] mb-4 max-w-sm mx-auto">
                 We&apos;ll review your founder profile and get back to you within 24 hours. Get ready to join our elite directory.
               </p>
-              <Link href="/">
-                <Button className="px-8 py-4 bg-[#0F6E56] text-white">
-                  Back to Home <ArrowRight size={18} />
-                </Button>
-              </Link>
+              <p className="text-sm text-gray-500 mb-8 animate-pulse">
+                Redirecting you to your Founder Dashboard...
+              </p>
+              <button 
+                onClick={() => {
+                  window.location.href = process.env.NEXT_PUBLIC_FOUNDER_DASHBOARD_URL || 'http://localhost:3001';
+                }}
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#0F6E56] text-white font-bold hover:bg-[#0c5945] transition-all"
+              >
+                Go to Dashboard <ArrowRight size={18} />
+              </button>
             </div>
           )}
         </div>

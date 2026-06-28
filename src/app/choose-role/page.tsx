@@ -3,9 +3,30 @@
 import React from 'react';
 import Link from 'next/link';
 import { PageWrapper } from '@/components/shared/PageWrapper';
-import { Search, UserPlus, ArrowRight } from 'lucide-react';
+import { Search, UserPlus, ArrowRight, Loader2 } from 'lucide-react';
+import { useUser } from '@/hooks/useUser';
 
 export default function ChooseRolePage() {
+  const { user, profile, loading } = useUser();
+
+  React.useEffect(() => {
+    if (!loading && user && profile?.onboarding_completed) {
+      if (profile.role === 'founder') {
+        window.location.href = process.env.NEXT_PUBLIC_FOUNDER_DASHBOARD_URL || 'http://localhost:3001';
+      } else {
+        window.location.href = process.env.NEXT_PUBLIC_USER_DASHBOARD_URL || 'http://localhost:3002';
+      }
+    }
+  }, [loading, user, profile]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#F9FBFA]">
+        <Loader2 className="w-10 h-10 animate-spin text-[#0F6E56]" />
+      </div>
+    );
+  }
+
   const roles = [
     {
       title: "Find a Founder",
