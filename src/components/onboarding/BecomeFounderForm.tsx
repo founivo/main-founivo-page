@@ -35,10 +35,20 @@ export default function BecomeFounderForm() {
     }
   }, [profile]);
 
+  const handleRedirect = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const baseUrl = process.env.NEXT_PUBLIC_FOUNDER_DASHBOARD_URL || 'http://localhost:3001';
+    if (session) {
+      window.location.href = `${baseUrl}?access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
+    } else {
+      window.location.href = baseUrl;
+    }
+  };
+
   useEffect(() => {
     if (step === 5) {
       const timer = setTimeout(() => {
-        window.location.href = process.env.NEXT_PUBLIC_FOUNDER_DASHBOARD_URL || 'http://localhost:3001';
+        handleRedirect();
       }, 2500);
       return () => clearTimeout(timer);
     }
@@ -318,9 +328,7 @@ export default function BecomeFounderForm() {
                 Redirecting you to your Founder Dashboard...
               </p>
               <button 
-                onClick={() => {
-                  window.location.href = process.env.NEXT_PUBLIC_FOUNDER_DASHBOARD_URL || 'http://localhost:3001';
-                }}
+                onClick={handleRedirect}
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#0F6E56] text-white font-bold hover:bg-[#0c5945] transition-all"
               >
                 Go to Dashboard <ArrowRight size={18} />
