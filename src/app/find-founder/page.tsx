@@ -6,12 +6,19 @@ import { PageWrapper } from '@/components/shared/PageWrapper';
 import Button from '@/components/ui/Button';
 import { ArrowRight, Zap, Users, ShieldCheck, Mail, CheckCircle2 } from 'lucide-react';
 import FindFounderForm from '@/components/onboarding/FindFounderForm';
-
-
-
+import { useUser } from '@/hooks/useUser';
 
 export default function FindFounderLanding() {
   const [showForm, setShowForm] = useState(false);
+  const { user, profile, loading } = useUser();
+
+  const handleCtaClick = () => {
+    if (!loading && user && profile?.onboarding_completed) {
+      window.location.href = process.env.NEXT_PUBLIC_USER_DASHBOARD_URL || 'http://localhost:3002';
+    } else {
+      setShowForm(true);
+    }
+  };
 
   if (showForm) {
     return (
@@ -44,7 +51,7 @@ export default function FindFounderLanding() {
             <p className="text-xl text-[#3a6b57] mb-10 max-w-2xl mx-auto">
               Stop cold emailing and start connecting. Founivo provides verified contact details of 500+ successful founders across every industry.
             </p>
-            <Button onClick={() => setShowForm(true)} className="px-10 py-4 bg-[#0F6E56] text-white text-lg rounded-xl shadow-lg shadow-[#0F6E56]/20">
+            <Button onClick={handleCtaClick} className="px-10 py-4 bg-[#0F6E56] text-white text-lg rounded-xl shadow-lg shadow-[#0F6E56]/20">
               Start Finding Founders <ArrowRight className="ml-2" />
             </Button>
           </div>
@@ -102,7 +109,7 @@ export default function FindFounderLanding() {
               <div className="flex-1 text-center bg-[#0F6E56] p-8 rounded-2xl border border-[#1D9E75]/30">
                 <div className="text-4xl font-bold mb-2">500+</div>
                 <div className="text-[#9FE1CB] mb-6">Verified Founders</div>
-                <Button onClick={() => setShowForm(true)} className="w-full bg-white text-[#0F6E56] hover:bg-gray-100">
+                <Button onClick={handleCtaClick} className="w-full bg-white text-[#0F6E56] hover:bg-gray-100">
                   Get Started Now
                 </Button>
               </div>

@@ -78,7 +78,7 @@ const Navbar = () => {
                       </div>
                       
                       <Link 
-                        href="/onboarding?role=user" 
+                        href="/find-founder" 
                         className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#3a6b57] hover:bg-gray-50 hover:text-[#0F6E56] transition-colors"
                       >
                         <Search size={16} />
@@ -86,7 +86,7 @@ const Navbar = () => {
                       </Link>
                       
                       <Link 
-                        href="/onboarding?role=founder" 
+                        href="/become-founder" 
                         className="flex items-center gap-2 px-4 py-2.5 text-sm text-[#3a6b57] hover:bg-gray-50 hover:text-[#0F6E56] transition-colors"
                       >
                         <UserPlus size={16} />
@@ -153,13 +153,13 @@ const Navbar = () => {
                     <p className="text-xs text-[#3a6b57] capitalize">{profile?.role || 'User'}</p>
                   </div>
                 </div>
-                <Link href="/onboarding?role=user" className="w-full">
+                <Link href="/find-founder" className="w-full">
                   <Button variant="outline" className="w-full py-3 text-base justify-start gap-3" onClick={() => setMobileMenu(false)}>
                     <Search size={18} />
                     Find Founder
                   </Button>
                 </Link>
-                <Link href="/onboarding?role=founder" className="w-full">
+                <Link href="/become-founder" className="w-full">
                   <Button variant="outline" className="w-full py-3 text-base justify-start gap-3" onClick={() => setMobileMenu(false)}>
                     <UserPlus size={18} />
                     Make Profile

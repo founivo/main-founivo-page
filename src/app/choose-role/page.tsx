@@ -9,15 +9,11 @@ import { useUser } from '@/hooks/useUser';
 export default function ChooseRolePage() {
   const { user, profile, loading } = useUser();
 
-  React.useEffect(() => {
-    if (!loading && user && profile?.onboarding_completed) {
-      if (profile.role === 'founder') {
-        window.location.href = process.env.NEXT_PUBLIC_FOUNDER_DASHBOARD_URL || 'http://localhost:3001';
-      } else {
-        window.location.href = process.env.NEXT_PUBLIC_USER_DASHBOARD_URL || 'http://localhost:3002';
-      }
-    }
-  }, [loading, user, profile]);
+  const userDashboardUrl = process.env.NEXT_PUBLIC_USER_DASHBOARD_URL || 'http://localhost:3002';
+  const founderDashboardUrl = process.env.NEXT_PUBLIC_FOUNDER_DASHBOARD_URL || 'http://localhost:3001';
+
+  const isUserOnboarded = !loading && user && profile?.onboarding_completed && profile.role === 'user';
+  const isFounderOnboarded = !loading && user && profile?.onboarding_completed && profile.role === 'founder';
 
   if (loading) {
     return (
@@ -32,16 +28,16 @@ export default function ChooseRolePage() {
       title: "Find a Founder",
       description: "Search our elite directory of verified founders, connect with potential partners, or find investment opportunities.",
       icon: <Search className="w-12 h-12 text-[#0F6E56]" />,
-      href: "/onboarding?role=user",
-      buttonText: "Get Started",
+      href: isUserOnboarded ? userDashboardUrl : "/onboarding?role=user",
+      buttonText: isUserOnboarded ? "Go to Dashboard" : "Get Started",
       color: "bg-[#E1F5EE]"
     },
     {
       title: "Make Profile",
       description: "Join our exclusive network of founders. Share your story, attract investors, and connect with fellow entrepreneurs.",
       icon: <UserPlus className="w-12 h-12 text-[#0F6E56]" />,
-      href: "/onboarding?role=founder",
-      buttonText: "Create Profile",
+      href: isFounderOnboarded ? founderDashboardUrl : "/onboarding?role=founder",
+      buttonText: isFounderOnboarded ? "Go to Dashboard" : "Create Profile",
       color: "bg-[#F0FDF4]"
     }
   ];
@@ -60,8 +56,8 @@ export default function ChooseRolePage() {
 
         <div className="grid md:grid-cols-2 gap-8">
           {roles.map((role, i) => (
-            <Link 
-              key={i} 
+            <Link
+              key={i}
               href={role.href}
               className="group bg-white p-10 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-[#0F6E56]/30 transition-all duration-300 flex flex-col items-center text-center"
             >
