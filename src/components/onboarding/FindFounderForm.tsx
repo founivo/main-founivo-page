@@ -6,6 +6,7 @@ import { ArrowRight, CheckCircle2, User, Search, Target, Briefcase, Loader2 } fr
 import Link from 'next/link';
 import { useUser } from '@/hooks/useUser';
 import { createClient } from '@/utils/supabase/client';
+import { getUserDashboardUrl } from '@/lib/config';
 
 export default function FindFounderForm() {
   const { user, profile, loading: userLoading } = useUser();
@@ -33,7 +34,7 @@ export default function FindFounderForm() {
 
   const handleRedirect = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    const baseUrl = process.env.NEXT_PUBLIC_USER_DASHBOARD_URL || 'http://localhost:3002';
+    const baseUrl = getUserDashboardUrl();
     if (session) {
       window.location.href = `${baseUrl}?access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
     } else {

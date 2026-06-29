@@ -6,6 +6,7 @@ import Button from '@/components/ui/Button';
 import { ArrowRight, DollarSign, Award, Rocket, Globe, ShieldCheck } from 'lucide-react';
 import BecomeFounderForm from '@/components/onboarding/BecomeFounderForm';
 import { useUser } from '@/hooks/useUser';
+import { getFounderDashboardUrl } from '@/lib/config';
 
 export default function BecomeFounderLanding() {
   const [showForm, setShowForm] = useState(false);
@@ -13,7 +14,7 @@ export default function BecomeFounderLanding() {
 
   const handleCtaClick = () => {
     if (!loading && user && profile?.onboarding_completed) {
-      window.location.href = process.env.NEXT_PUBLIC_FOUNDER_DASHBOARD_URL || 'http://localhost:3001';
+      window.location.href = getFounderDashboardUrl();
     } else {
       setShowForm(true);
     }

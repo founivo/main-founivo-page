@@ -5,12 +5,13 @@ import Link from 'next/link';
 import { PageWrapper } from '@/components/shared/PageWrapper';
 import { Search, UserPlus, ArrowRight, Loader2 } from 'lucide-react';
 import { useUser } from '@/hooks/useUser';
+import { getUserDashboardUrl, getFounderDashboardUrl } from '@/lib/config';
 
 export default function ChooseRolePage() {
   const { user, profile, loading } = useUser();
 
-  const userDashboardUrl = process.env.NEXT_PUBLIC_USER_DASHBOARD_URL || 'http://localhost:3002';
-  const founderDashboardUrl = process.env.NEXT_PUBLIC_FOUNDER_DASHBOARD_URL || 'http://localhost:3001';
+  const userDashboardUrl = getUserDashboardUrl();
+  const founderDashboardUrl = getFounderDashboardUrl();
 
   const isUserOnboarded = !loading && user && profile?.onboarding_completed && profile.role === 'user';
   const isFounderOnboarded = !loading && user && profile?.onboarding_completed && profile.role === 'founder';

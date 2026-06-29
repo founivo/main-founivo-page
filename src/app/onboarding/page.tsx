@@ -7,6 +7,7 @@ import FindFounderForm from '@/components/onboarding/FindFounderForm';
 import BecomeFounderForm from '@/components/onboarding/BecomeFounderForm';
 import { Loader2 } from 'lucide-react';
 import { useUser } from '@/hooks/useUser';
+import { getUserDashboardUrl, getFounderDashboardUrl } from '@/lib/config';
 
 function OnboardingContent() {
   const searchParams = useSearchParams();
@@ -16,9 +17,9 @@ function OnboardingContent() {
   useEffect(() => {
     if (!loading && user && profile?.onboarding_completed) {
       if (role === 'founder' && profile.role === 'founder') {
-        window.location.href = process.env.NEXT_PUBLIC_FOUNDER_DASHBOARD_URL || 'http://localhost:3001';
+        window.location.href = getFounderDashboardUrl();
       } else if (role === 'user' && profile.role === 'user') {
-        window.location.href = process.env.NEXT_PUBLIC_USER_DASHBOARD_URL || 'http://localhost:3002';
+        window.location.href = getUserDashboardUrl();
       }
     }
   }, [loading, user, profile, role]);

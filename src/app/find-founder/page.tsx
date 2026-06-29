@@ -4,9 +4,10 @@
 import React, { useState } from 'react';
 import { PageWrapper } from '@/components/shared/PageWrapper';
 import Button from '@/components/ui/Button';
-import { ArrowRight, Zap, Users, ShieldCheck, Mail, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Search, Star, Building2, Users, TrendingUp, ShieldCheck, Zap, Mail, CheckCircle2 } from 'lucide-react';
 import FindFounderForm from '@/components/onboarding/FindFounderForm';
 import { useUser } from '@/hooks/useUser';
+import { getUserDashboardUrl } from '@/lib/config';
 
 export default function FindFounderLanding() {
   const [showForm, setShowForm] = useState(false);
@@ -14,7 +15,7 @@ export default function FindFounderLanding() {
 
   const handleCtaClick = () => {
     if (!loading && user && profile?.onboarding_completed) {
-      window.location.href = process.env.NEXT_PUBLIC_USER_DASHBOARD_URL || 'http://localhost:3002';
+      window.location.href = getUserDashboardUrl();
     } else {
       setShowForm(true);
     }

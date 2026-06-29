@@ -6,6 +6,7 @@ import { ArrowRight, CheckCircle2, User, Globe, Briefcase, Award, DollarSign, Lo
 import Link from 'next/link';
 import { useUser } from '@/hooks/useUser';
 import { createClient } from '@/utils/supabase/client';
+import { getFounderDashboardUrl } from '@/lib/config';
 
 export default function BecomeFounderForm() {
   const { user, profile, loading: userLoading } = useUser();
@@ -37,7 +38,7 @@ export default function BecomeFounderForm() {
 
   const handleRedirect = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    const baseUrl = process.env.NEXT_PUBLIC_FOUNDER_DASHBOARD_URL || 'http://localhost:3001';
+    const baseUrl = getFounderDashboardUrl();
     if (session) {
       window.location.href = `${baseUrl}?access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
     } else {
