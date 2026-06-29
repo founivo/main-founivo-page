@@ -14,7 +14,12 @@ export default function FindFounderLanding() {
   const { user, profile, loading } = useUser();
 
   const handleCtaClick = () => {
-    if (!loading && user && profile?.onboarding_completed) {
+    if (loading) return;
+    if (!user) {
+      window.location.href = '/sign-in';
+      return;
+    }
+    if (profile?.onboarding_completed) {
       window.location.href = getUserDashboardUrl();
     } else {
       setShowForm(true);
@@ -52,8 +57,8 @@ export default function FindFounderLanding() {
             <p className="text-xl text-[#3a6b57] mb-10 max-w-2xl mx-auto">
               Stop cold emailing and start connecting. Founivo provides verified contact details of 500+ successful founders across every industry.
             </p>
-            <Button onClick={handleCtaClick} className="px-10 py-4 bg-[#0F6E56] text-white text-lg rounded-xl shadow-lg shadow-[#0F6E56]/20">
-              Start Finding Founders <ArrowRight className="ml-2" />
+            <Button onClick={handleCtaClick} disabled={loading} className="px-10 py-4 bg-[#0F6E56] text-white text-lg rounded-xl shadow-lg shadow-[#0F6E56]/20 disabled:opacity-50 disabled:cursor-not-allowed">
+              {loading ? 'Loading...' : 'Start Finding Founders'} {!loading && <ArrowRight className="ml-2" />}
             </Button>
           </div>
 
@@ -110,8 +115,8 @@ export default function FindFounderLanding() {
               <div className="flex-1 text-center bg-[#0F6E56] p-8 rounded-2xl border border-[#1D9E75]/30">
                 <div className="text-4xl font-bold mb-2">500+</div>
                 <div className="text-[#9FE1CB] mb-6">Verified Founders</div>
-                <Button onClick={handleCtaClick} className="w-full bg-white text-[#0F6E56] hover:bg-gray-100">
-                  Get Started Now
+                <Button onClick={handleCtaClick} disabled={loading} className="w-full bg-white text-[#0F6E56] hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">
+                  {loading ? 'Loading...' : 'Get Started Now'}
                 </Button>
               </div>
             </div>

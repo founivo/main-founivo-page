@@ -13,7 +13,12 @@ export default function BecomeFounderLanding() {
   const { user, profile, loading } = useUser();
 
   const handleCtaClick = () => {
-    if (!loading && user && profile?.onboarding_completed) {
+    if (loading) return;
+    if (!user) {
+      window.location.href = '/sign-in';
+      return;
+    }
+    if (profile?.onboarding_completed) {
       window.location.href = getFounderDashboardUrl();
     } else {
       setShowForm(true);
@@ -51,8 +56,8 @@ export default function BecomeFounderLanding() {
             <p className="text-xl text-[#3a6b57] mb-10 max-w-2xl mx-auto">
               Founivo is more than a directory. It&apos;s a platform where your expertise is valued. Connect with serious investors and earn for every meaningful connection.
             </p>
-            <Button onClick={handleCtaClick} className="px-10 py-4 bg-[#0F6E56] text-white text-lg rounded-xl shadow-lg shadow-[#0F6E56]/20">
-              Apply to Join <ArrowRight className="ml-2" />
+            <Button onClick={handleCtaClick} disabled={loading} className="px-10 py-4 bg-[#0F6E56] text-white text-lg rounded-xl shadow-lg shadow-[#0F6E56]/20 disabled:opacity-50 disabled:cursor-not-allowed">
+              {loading ? 'Loading...' : 'Apply to Join'} {!loading && <ArrowRight className="ml-2" />}
             </Button>
           </div>
 
@@ -109,8 +114,8 @@ export default function BecomeFounderLanding() {
               <div className="flex-1 text-center bg-[#04342C] p-8 rounded-2xl border border-[#1D9E75]/30">
                 <div className="text-lg text-[#9FE1CB] mb-2 font-semibold">FOUNDER COMMISSION</div>
                 <div className="text-5xl font-bold mb-6 text-white">$20<span className="text-xl text-[#9FE1CB] font-normal">/conn</span></div>
-                <Button onClick={handleCtaClick} className="w-full bg-white text-[#0F6E56] hover:bg-gray-100">
-                  Join the elite directory
+                <Button onClick={handleCtaClick} disabled={loading} className="w-full bg-white text-[#0F6E56] hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed">
+                  {loading ? 'Loading...' : 'Join the elite directory'}
                 </Button>
               </div>
             </div>
