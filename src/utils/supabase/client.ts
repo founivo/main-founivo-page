@@ -6,9 +6,13 @@ const FALLBACK_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 let client: ReturnType<typeof createBrowserClient> | null = null
 
 export function createClient() {
-  if (client) return client
+  const isBrowser = typeof window !== 'undefined'
+  if (client && isBrowser) return client
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || FALLBACK_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || FALLBACK_KEY
-  client = createBrowserClient(supabaseUrl, supabaseAnonKey)
-  return client
+  const newClient = createBrowserClient(supabaseUrl, supabaseAnonKey)
+  if (isBrowser) {
+    client = newClient
+  }
+  return newClient
 }
