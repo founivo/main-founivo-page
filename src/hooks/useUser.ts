@@ -20,32 +20,65 @@ export function useUser() {
   const supabase = createClient()
 
   useEffect(() => {
+    let mounted = true
+
     const fetchData = async () => {
       setLoading(true)
-      const { data: { user } } = await supabase.auth.getUser()
+
+      let { data: { user } } = await supabase.auth.getUser()
+
+      if (!user) {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) {
+          user = session.user
+        }
+      }
+
+      if (!user) {
+        const sbCookie = document.cookie
+          .split('; ')
+          .find(c => c.startsWith('sb-') && c.includes('-auth-token'))
+        if (sbCookie) {
+          try {
+            const raw = decodeURIComponent(sbCookie.split('=')[1])
+            const parsed = JSON.parse(raw)
+            if (parsed.access_token) {
+              await supabase.auth.setSession({
+                access_token: parsed.access_token,
+                refresh_token: parsed.refresh_token || '',
+              })
+              const { data: { user: recovered } } = await supabase.auth.getUser()
+              user = recovered ?? null
+            }
+          } catch {}
+        }
+      }
+
+      if (!mounted) return
       setUser(user)
-      
+
       if (user) {
         const { data: profileData } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
           .single()
-        setProfile(profileData as Profile)
+        if (mounted) setProfile(profileData as Profile)
       } else {
-        setProfile(null)
+        if (mounted) setProfile(null)
       }
-      
-      setLoading(false)
+
+      if (mounted) setLoading(false)
     }
 
     fetchData()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        if (!mounted) return
         const currentUser = session?.user ?? null
         setUser(currentUser)
-        
+
         if (currentUser) {
           const { data: profileData } = await supabase
             .from('profiles')
@@ -56,12 +89,13 @@ export function useUser() {
         } else {
           setProfile(null)
         }
-        
+
         setLoading(false)
       }
     )
 
     return () => {
+      mounted = false
       subscription.unsubscribe()
     }
   }, [supabase])
