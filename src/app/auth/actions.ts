@@ -4,6 +4,11 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
+function getSiteUrl(): string {
+  return process.env.NEXT_PUBLIC_SITE_URL || 
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '')
+}
+
 export async function login(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
@@ -33,6 +38,7 @@ export async function signup(formData: FormData) {
   }
 
   const supabase = await createClient()
+  const siteUrl = getSiteUrl()
   const { error, data } = await supabase.auth.signUp({
     email,
     password,
@@ -40,9 +46,7 @@ export async function signup(formData: FormData) {
       data: {
         full_name: fullName,
       },
-      emailRedirectTo: process.env.NEXT_PUBLIC_SITE_URL 
-        ? `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
-        : undefined,
+      emailRedirectTo: siteUrl ? `${siteUrl}/auth/callback` : undefined,
     },
   })
 
@@ -58,13 +62,12 @@ export async function signup(formData: FormData) {
 
 export async function signInWithGoogle() {
   const supabase = await createClient()
+  const siteUrl = getSiteUrl()
+  const redirectTo = siteUrl ? `${siteUrl}/auth/callback` : undefined
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
-    options: {
-      redirectTo: process.env.NEXT_PUBLIC_SITE_URL 
-        ? `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
-        : undefined,
-    },
+    options: { redirectTo },
   })
 
   if (error) {
@@ -78,13 +81,12 @@ export async function signInWithGoogle() {
 
 export async function signInWithLinkedIn() {
   const supabase = await createClient()
+  const siteUrl = getSiteUrl()
+  const redirectTo = siteUrl ? `${siteUrl}/auth/callback` : undefined
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'linkedin_oidc',
-    options: {
-      redirectTo: process.env.NEXT_PUBLIC_SITE_URL 
-        ? `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
-        : undefined,
-    },
+    options: { redirectTo },
   })
 
   if (error) {
