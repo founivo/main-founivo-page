@@ -40,8 +40,9 @@ export function useUser() {
           .find(c => c.startsWith('sb-') && c.includes('-auth-token'))
         if (sbCookie) {
           try {
-            const raw = decodeURIComponent(sbCookie.split('=')[1])
-            const parsed = JSON.parse(raw)
+            const raw = decodeURIComponent(sbCookie.split('=').slice(1).join('='))
+            const b64 = raw.startsWith('base64-') ? raw.slice(7) : raw
+            const parsed = JSON.parse(atob(b64))
             if (parsed.access_token) {
               await supabase.auth.setSession({
                 access_token: parsed.access_token,
