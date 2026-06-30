@@ -1,11 +1,38 @@
-import { login, signInWithGoogle, signInWithLinkedIn } from '../auth/actions'
+'use client'
+
+import { signInWithGoogle, signInWithLinkedIn } from '../auth/actions'
+import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+import { Suspense, useState } from 'react'
 import { PageWrapper } from '@/components/shared/PageWrapper'
 import Button from '@/components/ui/Button'
 
-export default async function LoginPage(props: { searchParams: Promise<{ error?: string }> }) {
-  const searchParams = await props.searchParams;
-  
+function LoginForm() {
+  const searchParams = useSearchParams()
+  const [error, setError] = useState(searchParams.get('error') || '')
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+
+    const form = new FormData(e.currentTarget)
+    const email = form.get('email') as string
+    const password = form.get('password') as string
+
+    const supabase = createClient()
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
+    if (signInError) {
+      setError(signInError.message)
+      setLoading(false)
+      return
+    }
+
+    window.location.href = '/choose-role'
+  }
+
   return (
     <div className="min-h-screen bg-[#f8faf9] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-inter">
       <PageWrapper className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -19,10 +46,10 @@ export default async function LoginPage(props: { searchParams: Promise<{ error?:
         </div>
 
         <div className="bg-white py-8 px-4 border border-[#d0ede4] sm:rounded-2xl sm:px-10">
-          <form action={login} className="space-y-6">
-            {searchParams.error && (
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
               <div className="bg-red-50 text-red-500 p-3 rounded-lg text-sm font-medium border border-red-100">
-                {searchParams.error}
+                {error}
               </div>
             )}
             <div>
@@ -64,8 +91,8 @@ export default async function LoginPage(props: { searchParams: Promise<{ error?:
               </div>
             </div>
 
-            <Button type="submit" className="w-full py-4 text-base">
-              Sign In
+            <Button type="submit" disabled={loading} className="w-full py-4 text-base">
+              {loading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
 
@@ -117,5 +144,13 @@ export default async function LoginPage(props: { searchParams: Promise<{ error?:
         </div>
       </PageWrapper>
     </div>
-  );
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  )
 }
