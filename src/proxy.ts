@@ -39,30 +39,27 @@ export async function proxy(request: NextRequest) {
                          nextUrl.pathname.startsWith('/onboarding') || 
                          nextUrl.pathname.startsWith('/choose-role')
 
+  let response = supabaseResponse
   if (isProtectedPage && !user) {
-    return NextResponse.redirect(new URL('/sign-in', request.url))
-  }
-
-  // Handle dashboard sub-route checks if user is logged in
-  if (user && nextUrl.pathname.startsWith('/dashboard')) {
+    response = NextResponse.redirect(new URL('/sign-in', request.url))
+  } else if (user && nextUrl.pathname.startsWith('/dashboard')) {
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', user.id)
       .single()
-      
     const role = profile?.role
-    
     if (nextUrl.pathname.startsWith('/dashboard/user') && role !== 'user') {
-      return NextResponse.redirect(new URL('/dashboard/founder', request.url))
-    }
-    
-    if (nextUrl.pathname.startsWith('/dashboard/founder') && role !== 'founder') {
-      return NextResponse.redirect(new URL('/dashboard/user', request.url))
+      response = NextResponse.redirect(new URL('/dashboard/founder', request.url))
+    } else if (nextUrl.pathname.startsWith('/dashboard/founder') && role !== 'founder') {
+      response = NextResponse.redirect(new URL('/dashboard/user', request.url))
     }
   }
 
-  return supabaseResponse
+  const cookieNames = request.cookies.getAll().map(c => c.name)
+  response.headers.set('x-debug-cookies', cookieNames.join(',') || '(none)')
+  response.headers.set('x-debug-user', user?.email || 'null')
+  return response
 }
 
 export const config = {
