@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { User } from '@supabase/supabase-js'
+import { AuthChangeEvent, Session, User } from '@supabase/supabase-js'
 
 export interface Profile {
   id: string
@@ -76,7 +76,7 @@ export function useUser() {
     fetchData()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      async (event: AuthChangeEvent, session: Session | null) => {
         if (!mounted) return
         const currentUser = session?.user ?? null
         setUser(currentUser)
