@@ -14,18 +14,18 @@ export async function login(formData: FormData) {
   const password = formData.get('password') as string
 
   if (!email || !password) {
-    redirect('/sign-in?error=' + encodeURIComponent('Email and password are required'))
+    return { error: 'Email and password are required' }
   }
 
   const supabase = await createClient()
   const { error } = await supabase.auth.signInWithPassword({ email, password })
 
   if (error) {
-    redirect('/sign-in?error=' + encodeURIComponent(error.message))
+    return { error: error.message }
   }
 
   revalidatePath('/', 'layout')
-  redirect('/choose-role')
+  return { ok: true, next: '/choose-role' }
 }
 
 export async function signup(formData: FormData) {

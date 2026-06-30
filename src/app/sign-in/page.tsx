@@ -1,7 +1,6 @@
 'use client'
 
-import { signInWithGoogle, signInWithLinkedIn } from '../auth/actions'
-import { createClient } from '@/utils/supabase/client'
+import { login, signInWithGoogle, signInWithLinkedIn } from '../auth/actions'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
@@ -18,19 +17,18 @@ function LoginForm() {
     setLoading(true)
     setError('')
 
-    const form = new FormData(e.currentTarget)
-    const email = form.get('email') as string
-    const password = form.get('password') as string
+    const formData = new FormData(e.currentTarget)
 
-    const supabase = createClient()
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
-    if (signInError) {
-      setError(signInError.message)
+    const result = await login(formData)
+    if (result?.error) {
+      setError(result.error)
       setLoading(false)
       return
     }
 
-    window.location.href = '/choose-role'
+    if (result?.ok && result.next) {
+      window.location.href = result.next
+    }
   }
 
   return (
