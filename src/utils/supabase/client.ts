@@ -7,11 +7,13 @@ let client: ReturnType<typeof createBrowserClient> | null = null
 
 export function createClient() {
   const isBrowser = typeof window !== 'undefined'
+  console.log('[createClient] called, isBrowser:', isBrowser, 'cached:', !!client)
   if (client && isBrowser) return client
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || FALLBACK_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || FALLBACK_KEY
   const newClient = createBrowserClient(supabaseUrl, supabaseAnonKey)
   if (isBrowser) {
+    console.log('[createClient] caching new client')
     client = newClient
   }
   return newClient

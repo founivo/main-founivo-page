@@ -25,34 +25,44 @@ export function useUser() {
     const fetchData = async () => {
       setLoading(true)
 
+      console.log('[useUser] getUser() call...')
       let { data: { user } } = await supabase.auth.getUser()
+      console.log('[useUser] getUser() result:', user?.email)
 
       if (!user) {
+        console.log('[useUser] getUser() null, trying getSession()...')
         const { data: { session } } = await supabase.auth.getSession()
+        console.log('[useUser] getSession() result:', session ? 'found' : 'null')
         if (session) {
           user = session.user
         }
       }
 
       if (!user) {
+        console.log('[useUser] Trying manual cookie recovery...')
         const sbCookie = document.cookie
           .split('; ')
           .find(c => c.startsWith('sb-') && c.includes('-auth-token'))
+        console.log('[useUser] sbCookie found:', !!sbCookie)
         if (sbCookie) {
           try {
             const raw = sbCookie.split('=').slice(1).join('=')
             const b64url = raw.startsWith('base64-') ? raw.slice(7) : raw
             const b64 = b64url.replace(/-/g, '+').replace(/_/g, '/')
             const parsed = JSON.parse(atob(b64))
+            console.log('[useUser] Cookie decoded, access_token present:', !!parsed.access_token)
             if (parsed.access_token) {
               await supabase.auth.setSession({
                 access_token: parsed.access_token,
                 refresh_token: parsed.refresh_token || '',
               })
               const { data: { user: recovered } } = await supabase.auth.getUser()
+              console.log('[useUser] After setSession getUser():', recovered?.email)
               user = recovered ?? null
             }
-          } catch {}
+          } catch (e) {
+            console.log('[useUser] Manual recovery error:', e)
+          }
         }
       }
 
@@ -77,6 +87,7 @@ export function useUser() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session: Session | null) => {
+        console.log('[useUser] onAuthStateChange event:', event, 'user:', session?.user?.email)
         if (!mounted) return
         const currentUser = session?.user ?? null
         setUser(currentUser)
