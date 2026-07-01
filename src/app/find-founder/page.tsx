@@ -20,7 +20,7 @@ export default function FindFounderLanding() {
       window.location.href = '/sign-in';
       return;
     }
-    if (profile?.onboarding_completed) {
+    if (profile?.onboarding_completed && profile?.role === 'user') {
       try {
         const supabase = createClient();
         const { data: { session } } = await supabase.auth.getSession();
