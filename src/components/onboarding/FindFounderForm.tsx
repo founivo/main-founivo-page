@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Button from '@/components/ui/Button';
-import { ArrowRight, CheckCircle2, User, Search, Target, Briefcase, Loader2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2, User, Search, Target, Briefcase, Loader2, MapPin, Sparkles, Check } from 'lucide-react';
 import Link from 'next/link';
 import { useUser } from '@/hooks/useUser';
 import { createClient } from '@/utils/supabase/client';
@@ -98,29 +98,31 @@ export default function FindFounderForm() {
   if (userLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-[#0F6E56]" />
+        <Loader2 className="w-10 h-10 animate-spin text-[#0F6E56]" />
       </div>
     );
   }
 
   if (!user && !userLoading) {
     return (
-      <div className="bg-white rounded-2xl p-12 shadow-sm border border-gray-100 text-center animate-fade-up">
-        <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-400">
+      <div className="bg-white rounded-3xl p-12 shadow-xl shadow-[#04342C]/5 border border-gray-100 text-center animate-fade-up max-w-lg mx-auto">
+        <div className="w-20 h-20 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-8 text-[#0F6E56]">
           <User size={40} />
         </div>
-        <h2 className="text-2xl font-bold text-[#04342C] mb-4">Please log in to continue</h2>
-        <p className="text-[#3a6b57] mb-8 max-w-sm mx-auto">
+        <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800 }} className="text-3xl text-[#04342C] mb-4">
+          Please log in to continue
+        </h2>
+        <p className="text-[#3a6b57] mb-8 max-w-sm mx-auto leading-relaxed">
           You need to be logged in to complete your onboarding and access the founder directory.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/sign-in">
-            <Button variant="primary" className="w-full sm:w-auto px-8 py-4">
+          <Link href="/sign-in" className="flex-1">
+            <Button variant="primary" className="w-full py-4 text-base rounded-xl font-bold">
               Log In
             </Button>
           </Link>
-          <Link href="/sign-up">
-            <Button variant="outline" className="w-full sm:w-auto px-8 py-4">
+          <Link href="/sign-up" className="flex-1">
+            <Button variant="outline" className="w-full py-4 text-base rounded-xl font-bold">
               Join Founivo
             </Button>
           </Link>
@@ -130,168 +132,259 @@ export default function FindFounderForm() {
   }
 
   return (
-    <div className="animate-fade-up">
-        {/* Progress Bar */}
-        <div className="flex justify-between mb-12 relative">
-          <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 -translate-y-1/2 z-0" />
-          <div 
-            className="absolute top-1/2 left-0 h-0.5 bg-[#0F6E56] -translate-y-1/2 z-0 transition-all duration-300" 
-            style={{ width: `${((step - 1) / 2) * 100}%` }}
-          />
-          {[1, 2, 3].map((s) => (
+    <div className="animate-fade-up max-w-2xl mx-auto px-4">
+      {/* Progress Tracker */}
+      {step < 4 && (
+        <div className="mb-10">
+          <div className="flex justify-between items-center relative px-2">
+            <div className="absolute top-1/2 left-0 w-full h-[3px] bg-gray-100 -translate-y-1/2 z-0 rounded-full" />
             <div 
-              key={s} 
-              className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors duration-300 ${
-                step >= s ? 'bg-[#0F6E56] border-[#0F6E56] text-white' : 'bg-white border-gray-200 text-gray-400'
-              }`}
-            >
-              {step > s ? <CheckCircle2 size={20} /> : s}
-            </div>
-          ))}
+              className="absolute top-1/2 left-0 h-[3px] bg-[#0F6E56] -translate-y-1/2 z-0 transition-all duration-500 rounded-full" 
+              style={{ width: `${((step - 1) / 2) * 100}%` }}
+            />
+            {[1, 2, 3].map((s) => (
+              <div 
+                key={s} 
+                className={`relative z-10 w-12 h-12 rounded-full flex items-center justify-center font-syne font-extrabold text-base transition-all duration-300 border-2 ${
+                  step === s 
+                    ? 'bg-[#0F6E56] border-[#0F6E56] text-white shadow-lg shadow-[#0F6E56]/20 ring-4 ring-[#0F6E56]/15 scale-110' 
+                    : step > s 
+                      ? 'bg-[#E1F5EE] border-[#0F6E56]/20 text-[#0F6E56]' 
+                      : 'bg-white border-gray-200 text-gray-400'
+                }`}
+              >
+                {step > s ? <Check size={20} strokeWidth={3} /> : s}
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-between mt-3 text-xs font-bold font-syne tracking-wider text-[#3a6b57] px-1 uppercase">
+            <span>Basic Info</span>
+            <span className="text-center pl-4">Preferences</span>
+            <span>Primary Goal</span>
+          </div>
         </div>
+      )}
 
-        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm">
-              {error}
-            </div>
-          )}
+      {/* Form Card */}
+      <div className="bg-white rounded-3xl p-8 md:p-12 shadow-xl shadow-[#04342C]/5 border border-gray-100/80">
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm font-medium">
+            {error}
+          </div>
+        )}
 
-          {step === 1 && (
-            <div className="animate-fade-up">
-              <h2 className="text-xl font-bold text-[#04342C] mb-6 flex items-center gap-2">
-                <User size={20} className="text-[#0F6E56]" /> Basic Details
+        {step === 1 && (
+          <div className="animate-fade-up">
+            <div className="mb-8">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E1F5EE] text-[#0F6E56] text-xs font-bold mb-3 uppercase tracking-wider">
+                Step 1 of 3
+              </span>
+              <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800 }} className="text-2xl text-[#04342C] flex items-center gap-2">
+                <User size={24} className="text-[#0F6E56]" /> Introduce Yourself
               </h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-[#3a6b57] mb-1">Full Name</label>
+              <p className="text-sm text-[#3a6b57] mt-1">Let&apos;s get some basic information to set up your profile.</p>
+            </div>
+            
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-bold text-[#04342C] mb-2">Full Name</label>
+                <div className="relative">
                   <input 
                     type="text" 
-                    placeholder="John Doe"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0F6E56]/20 focus:border-[#0F6E56]"
+                    placeholder="Enter your full name"
+                    className="w-full pl-5 pr-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-[#0F6E56] focus:ring-4 focus:ring-[#0F6E56]/10 outline-none transition-all text-[#04342C] font-semibold placeholder-gray-400 bg-gray-50/30"
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-[#3a6b57] mb-1">Email Address</label>
-                  <input 
-                    type="email" 
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed"
-                    value={user?.email || ''}
-                    disabled
-                  />
-                  <p className="mt-1 text-xs text-gray-400 italic">Email cannot be changed during onboarding</p>
-                </div>
-                <Button onClick={nextStep} disabled={!formData.name} className="w-full py-4 mt-4 bg-[#0F6E56] text-white">
-                  Continue <ArrowRight size={18} />
-                </Button>
               </div>
-            </div>
-          )}
+              
+              <div>
+                <label className="block text-sm font-bold text-[#04342C] mb-2">Email Address</label>
+                <input 
+                  type="email" 
+                  className="w-full px-5 py-4 rounded-2xl border border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed font-medium"
+                  value={user?.email || ''}
+                  disabled
+                />
+                <p className="mt-2 text-xs text-gray-400 italic">Email cannot be changed during onboarding.</p>
+              </div>
 
-          {step === 2 && (
-            <div className="animate-fade-up">
-              <h2 className="text-xl font-bold text-[#04342C] mb-6 flex items-center gap-2">
-                <Briefcase size={20} className="text-[#0F6E56]" /> What are you looking for?
+              <Button 
+                onClick={nextStep} 
+                disabled={!formData.name} 
+                className="w-full py-4.5 mt-4 bg-[#0F6E56] text-white hover:bg-[#085041] font-syne font-bold rounded-2xl shadow-lg shadow-[#0F6E56]/10 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                Continue <ArrowRight size={18} />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="animate-fade-up">
+            <div className="mb-8">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E1F5EE] text-[#0F6E56] text-xs font-bold mb-3 uppercase tracking-wider">
+                Step 2 of 3
+              </span>
+              <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800 }} className="text-2xl text-[#04342C] flex items-center gap-2">
+                <Briefcase size={24} className="text-[#0F6E56]" /> Search Criteria
               </h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-[#3a6b57] mb-1">Preferred Industry</label>
+              <p className="text-sm text-[#3a6b57] mt-1">Help us filter our elite network of founders to match your needs.</p>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-bold text-[#04342C] mb-2">Preferred Industry</label>
+                <div className="relative">
                   <select 
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0F6E56]/20 focus:border-[#0F6E56] bg-white"
+                    className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-[#0F6E56] focus:ring-4 focus:ring-[#0F6E56]/10 outline-none transition-all text-[#04342C] font-semibold bg-white cursor-pointer appearance-none"
                     value={formData.industry}
                     onChange={(e) => setFormData({...formData, industry: e.target.value})}
                   >
                     <option value="">Any Industry</option>
-                    <option value="AI">Artificial Intelligence</option>
-                    <option value="SaaS">SaaS</option>
+                    <option value="AI">Artificial Intelligence (AI)</option>
+                    <option value="SaaS">Software as a Service (SaaS)</option>
                     <option value="Fintech">Fintech</option>
                     <option value="Healthtech">Healthtech</option>
+                    <option value="Web3">Web3 / Crypto</option>
+                    <option value="E-commerce">E-commerce</option>
                   </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#0F6E56]">
+                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-[#3a6b57] mb-1">Location Preference</label>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-[#04342C] mb-2">Location Preference</label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
+                    <MapPin size={18} />
+                  </span>
                   <input 
                     type="text" 
-                    placeholder="e.g. San Francisco, Remote"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0F6E56]/20 focus:border-[#0F6E56]"
+                    placeholder="e.g. San Francisco, Remote, London"
+                    className="w-full pl-11 pr-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-[#0F6E56] focus:ring-4 focus:ring-[#0F6E56]/10 outline-none transition-all text-[#04342C] font-semibold placeholder-gray-400 bg-gray-50/30"
                     value={formData.location}
                     onChange={(e) => setFormData({...formData, location: e.target.value})}
                   />
                 </div>
-                <div className="flex gap-4 mt-8">
-                  <Button onClick={prevStep} className="flex-1 py-4 bg-gray-100 text-gray-600 hover:bg-gray-200">
-                    Back
-                  </Button>
-                  <Button onClick={nextStep} className="flex-[2] py-4 bg-[#0F6E56] text-white">
-                    Next Step <ArrowRight size={18} />
-                  </Button>
-                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <Button 
+                  onClick={prevStep} 
+                  className="flex-1 py-4.5 border-2 border-gray-100 text-[#3a6b57] font-syne font-bold rounded-2xl hover:bg-gray-50 transition-all cursor-pointer"
+                >
+                  Back
+                </Button>
+                <Button 
+                  onClick={nextStep} 
+                  className="flex-[2] py-4.5 bg-[#0F6E56] text-white hover:bg-[#085041] font-syne font-bold rounded-2xl shadow-lg shadow-[#0F6E56]/10 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  Continue <ArrowRight size={18} />
+                </Button>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {step === 3 && (
-            <div className="animate-fade-up">
-              <h2 className="text-xl font-bold text-[#04342C] mb-6 flex items-center gap-2">
-                <Target size={20} className="text-[#0F6E56]" /> Primary Goal
+        {step === 3 && (
+          <div className="animate-fade-up">
+            <div className="mb-8">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E1F5EE] text-[#0F6E56] text-xs font-bold mb-3 uppercase tracking-wider">
+                Step 3 of 3
+              </span>
+              <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800 }} className="text-2xl text-[#04342C] flex items-center gap-2">
+                <Target size={24} className="text-[#0F6E56]" /> What is your primary goal?
               </h2>
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 gap-3">
-                  {['Investment Opportunity', 'Partnership/Co-founder', 'Hiring talent', 'Market Research', 'Networking'].map((goal) => (
-                    <button
-                      key={goal}
-                      onClick={() => setFormData({...formData, purpose: goal})}
-                      className={`text-left px-6 py-4 rounded-xl border-2 transition-all ${
-                        formData.purpose === goal ? 'border-[#0F6E56] bg-[#0F6E56]/5' : 'border-gray-100 hover:border-gray-200'
-                      }`}
-                    >
-                      <span className={`font-semibold ${formData.purpose === goal ? 'text-[#0F6E56]' : 'text-[#04342C]'}`}>{goal}</span>
-                    </button>
-                  ))}
-                </div>
-                <div className="flex gap-4 mt-8">
-                  <Button onClick={prevStep} className="flex-1 py-4 bg-gray-100 text-gray-600 hover:bg-gray-200">
-                    Back
-                  </Button>
-                  <Button 
-                    onClick={handleSubmit} 
-                    disabled={!formData.purpose || isSubmitting} 
-                    className="flex-[2] py-4 bg-[#0F6E56] text-white"
-                  >
-                    {isSubmitting ? (
-                      <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Saving...</span>
-                    ) : (
-                      <span className="flex items-center gap-2">Find Founders <Search size={18} /></span>
-                    )}
-                  </Button>
-                </div>
-              </div>
+              <p className="text-sm text-[#3a6b57] mt-1">This helps us customize who you see first on your feed.</p>
             </div>
-          )}
 
-          {step === 4 && (
-            <div className="animate-fade-up text-center py-8">
-              <div className="w-20 h-20 bg-[#E1F5EE] text-[#0F6E56] rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle2 size={40} />
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 gap-3.5">
+                {[
+                  { value: 'Investment Opportunity', desc: 'Find start-ups to fund' },
+                  { value: 'Partnership/Co-founder', desc: 'Find business partners' },
+                  { value: 'Hiring talent', desc: 'Recruit top founders & tech talent' },
+                  { value: 'Market Research', desc: 'Validate ideas & understand domains' },
+                  { value: 'Networking', desc: 'Build meaningful connections' }
+                ].map((goal) => (
+                  <button
+                    type="button"
+                    key={goal.value}
+                    onClick={() => setFormData({...formData, purpose: goal.value})}
+                    className={`text-left px-6 py-4.5 rounded-2xl border-2 transition-all duration-300 flex items-center justify-between cursor-pointer group ${
+                      formData.purpose === goal.value 
+                        ? 'border-[#0F6E56] bg-[#0F6E56]/5 shadow-md shadow-[#0F6E56]/5' 
+                        : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50/30'
+                    }`}
+                  >
+                    <div>
+                      <div className={`font-bold font-syne transition-colors ${formData.purpose === goal.value ? 'text-[#0F6E56]' : 'text-[#04342C]'}`}>
+                        {goal.value}
+                      </div>
+                      <div className="text-xs text-gray-400 mt-0.5">{goal.desc}</div>
+                    </div>
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                      formData.purpose === goal.value 
+                        ? 'border-[#0F6E56] bg-[#0F6E56] text-white scale-110' 
+                        : 'border-gray-200 text-transparent'
+                    }`}>
+                      <Check size={12} strokeWidth={3} />
+                    </div>
+                  </button>
+                ))}
               </div>
-              <h2 className="text-2xl font-bold text-[#04342C] mb-4">You&apos;re all set!</h2>
-              <p className="text-[#3a6b57] mb-4 max-w-sm mx-auto">
-                Based on your profile, we&apos;ve curated a list of founders that match your interests.
-              </p>
-              <p className="text-sm text-gray-500 mb-8 animate-pulse">
-                Redirecting you to your User Dashboard...
-              </p>
-              <button 
-                onClick={handleRedirect}
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#0F6E56] text-white font-bold hover:bg-[#0c5945] transition-all"
-              >
-                Go to Dashboard <ArrowRight size={18} />
-              </button>
+
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <Button 
+                  onClick={prevStep} 
+                  className="flex-1 py-4.5 border-2 border-gray-100 text-[#3a6b57] font-syne font-bold rounded-2xl hover:bg-gray-50 transition-all cursor-pointer"
+                >
+                  Back
+                </Button>
+                <Button 
+                  onClick={handleSubmit} 
+                  disabled={!formData.purpose || isSubmitting} 
+                  className="flex-[2] py-4.5 bg-[#0F6E56] text-white hover:bg-[#085041] font-syne font-bold rounded-2xl shadow-lg shadow-[#0F6E56]/10 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin" /> Saving...</span>
+                  ) : (
+                    <span className="flex items-center gap-2">Finish Setup <Sparkles size={18} /></span>
+                  )}
+                </Button>
+              </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="animate-fade-up text-center py-8">
+            <div className="w-24 h-24 bg-[#E1F5EE] text-[#0F6E56] rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-inner ring-8 ring-[#E1F5EE]/50 animate-bounce">
+              <CheckCircle2 size={48} />
+            </div>
+            <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800 }} className="text-3xl text-[#04342C] mb-4">
+              You&apos;re all set!
+            </h2>
+            <p className="text-[#3a6b57] mb-8 max-w-sm mx-auto leading-relaxed">
+              Based on your preferences, we&apos;ve curated a premium list of elite founders matching your requirements.
+            </p>
+            <div className="max-w-xs mx-auto mb-8 bg-[#F9FBFA] border border-gray-100 rounded-2xl p-4 flex items-center justify-center gap-3">
+              <Loader2 className="w-5 h-5 animate-spin text-[#0F6E56]" />
+              <span className="text-sm font-semibold text-[#0F6E56] animate-pulse">Syncing & redirecting...</span>
+            </div>
+            <button 
+              onClick={handleRedirect}
+              className="inline-flex items-center justify-center gap-2 px-10 py-4.5 rounded-2xl bg-[#0F6E56] text-white font-syne font-bold hover:bg-[#085041] hover:scale-[1.02] shadow-lg shadow-[#0F6E56]/15 transition-all cursor-pointer"
+            >
+              Go to Dashboard <ArrowRight size={18} />
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

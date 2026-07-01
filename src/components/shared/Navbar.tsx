@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { Menu, X, LogOut, User, ChevronDown, UserPlus, Search } from "lucide-react";
 import { APP_NAME, APP_LOGO } from "@/data/constants";
 import { useUser } from "@/hooks/useUser";
@@ -9,10 +10,13 @@ import { signout } from "@/app/auth/actions";
 import Button from "../ui/Button";
 
 const Navbar = () => {
+  const pathname = usePathname();
   const [mobileMenu, setMobileMenu] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const { user, profile, loading } = useUser();
   const LogoIcon = APP_LOGO;
+
+  if (pathname === "/onboarding") return null;
 
   const navLinks = [
     { name: "Find Founder", href: "/find-founder" },

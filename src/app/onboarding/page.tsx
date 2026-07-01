@@ -2,18 +2,21 @@
 
 import React, { Suspense, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { PageWrapper } from '@/components/shared/PageWrapper';
 import FindFounderForm from '@/components/onboarding/FindFounderForm';
 import BecomeFounderForm from '@/components/onboarding/BecomeFounderForm';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowLeft } from 'lucide-react';
 import { useUser } from '@/hooks/useUser';
 import { createClient } from '@/utils/supabase/client';
 import { getUserDashboardUrl, getFounderDashboardUrl } from '@/lib/config';
+import { APP_LOGO } from '@/data/constants';
 
 function OnboardingContent() {
   const searchParams = useSearchParams();
   const role = searchParams.get('role');
   const { user, profile, loading } = useUser();
+  const LogoIcon = APP_LOGO;
 
   useEffect(() => {
     const handleOnboardedRedirect = async () => {
@@ -66,8 +69,26 @@ function OnboardingContent() {
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-20 bg-[#F9FBFA]">
-      <PageWrapper className="max-w-2xl mx-auto">
+    <div className="min-h-screen pt-32 pb-20 bg-[#F9FBFA]">
+      {/* Simplified Header */}
+      <header className="fixed top-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between px-6 md:px-12 z-50">
+        <Link href="/choose-role" className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-lg bg-[#0F6E56] flex items-center justify-center shadow-sm">
+            <LogoIcon size={18} color="#fff" />
+          </div>
+          <span className="font-syne font-extrabold text-xl text-[#04342C] tracking-tight">
+            Founivo
+          </span>
+        </Link>
+        <button 
+          onClick={() => window.history.back()} 
+          className="flex items-center gap-2 text-sm font-semibold text-[#0F6E56] hover:bg-[#E1F5EE] px-4 py-2 rounded-xl transition-all duration-200 cursor-pointer"
+        >
+          <ArrowLeft size={16} /> Back
+        </button>
+      </header>
+
+      <PageWrapper className="max-w-2xl mx-auto px-4">
         <div className="mb-12 text-center">
           <h1 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800 }} className="text-4xl text-[#04342C] mb-4">
             {role === 'founder' ? 'Founder Onboarding' : 'Welcome to Founivo'}

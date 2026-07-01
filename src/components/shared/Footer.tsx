@@ -1,10 +1,15 @@
-// src/components/shared/Footer.tsx
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { APP_NAME, APP_LOGO } from "@/data/constants";
 import { Twitter as TwitterIcon, Linkedin as LinkedinIcon, Github as GithubIcon, Mail as MailIcon, MapPin as MapPinIcon } from "lucide-react";
 
 const Footer = () => {
+  const pathname = usePathname();
   const LogoIcon = APP_LOGO;
+
+  if (pathname === "/onboarding") return null;
 
   const footerLinks = [
     {
