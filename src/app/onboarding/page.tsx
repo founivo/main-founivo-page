@@ -7,6 +7,7 @@ import FindFounderForm from '@/components/onboarding/FindFounderForm';
 import BecomeFounderForm from '@/components/onboarding/BecomeFounderForm';
 import { Loader2 } from 'lucide-react';
 import { useUser } from '@/hooks/useUser';
+import { createClient } from '@/utils/supabase/client';
 import { getUserDashboardUrl, getFounderDashboardUrl } from '@/lib/config';
 
 function OnboardingContent() {
@@ -15,13 +16,37 @@ function OnboardingContent() {
   const { user, profile, loading } = useUser();
 
   useEffect(() => {
-    if (!loading && user && profile?.onboarding_completed) {
-      if (role === 'founder' && profile.role === 'founder') {
-        window.location.href = getFounderDashboardUrl();
-      } else if (role === 'user' && profile.role === 'user') {
-        window.location.href = getUserDashboardUrl();
+    const handleOnboardedRedirect = async () => {
+      if (!loading && user && profile?.onboarding_completed) {
+        try {
+          const supabase = createClient();
+          const { data: { session } } = await supabase.auth.getSession();
+          if (role === 'founder' && profile.role === 'founder') {
+            const baseUrl = getFounderDashboardUrl();
+            if (session) {
+              window.location.href = `${baseUrl}?access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
+              return;
+            }
+            window.location.href = baseUrl;
+          } else if (role === 'user' && profile.role === 'user') {
+            const baseUrl = getUserDashboardUrl();
+            if (session) {
+              window.location.href = `${baseUrl}?access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
+              return;
+            }
+            window.location.href = baseUrl;
+          }
+        } catch (error) {
+          console.error('Error fetching session for redirect:', error);
+          if (role === 'founder' && profile.role === 'founder') {
+            window.location.href = getFounderDashboardUrl();
+          } else if (role === 'user' && profile.role === 'user') {
+            window.location.href = getUserDashboardUrl();
+          }
+        }
       }
-    }
+    };
+    handleOnboardedRedirect();
   }, [loading, user, profile, role]);
 
   if (loading) {

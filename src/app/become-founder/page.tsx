@@ -6,19 +6,31 @@ import Button from '@/components/ui/Button';
 import { ArrowRight, DollarSign, Award, Rocket, Globe, ShieldCheck } from 'lucide-react';
 import BecomeFounderForm from '@/components/onboarding/BecomeFounderForm';
 import { useUser } from '@/hooks/useUser';
+import { createClient } from '@/utils/supabase/client';
 import { getFounderDashboardUrl } from '@/lib/config';
 
 export default function BecomeFounderLanding() {
   const [showForm, setShowForm] = useState(false);
   const { user, profile, loading } = useUser();
 
-  const handleCtaClick = () => {
+  const handleCtaClick = async () => {
     if (loading) return;
     if (!user) {
       window.location.href = '/sign-in';
       return;
     }
     if (profile?.onboarding_completed) {
+      try {
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        const baseUrl = getFounderDashboardUrl();
+        if (session) {
+          window.location.href = `${baseUrl}?access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
+          return;
+        }
+      } catch (error) {
+        console.error('Error fetching session for redirect:', error);
+      }
       window.location.href = getFounderDashboardUrl();
     } else {
       setShowForm(true);

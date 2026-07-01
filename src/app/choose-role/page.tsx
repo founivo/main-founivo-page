@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { PageWrapper } from '@/components/shared/PageWrapper';
 import { Search, UserPlus, ArrowRight, Loader2 } from 'lucide-react';
 import { useUser } from '@/hooks/useUser';
+import { createClient } from '@/utils/supabase/client';
 import { getUserDashboardUrl, getFounderDashboardUrl } from '@/lib/config';
 
 export default function ChooseRolePage() {
@@ -15,6 +16,23 @@ export default function ChooseRolePage() {
 
   const isUserOnboarded = !loading && user && profile?.onboarding_completed && profile.role === 'user';
   const isFounderOnboarded = !loading && user && profile?.onboarding_completed && profile.role === 'founder';
+
+  const handleRoleClick = async (e: React.MouseEvent<HTMLAnchorElement>, href: string, isOnboarded: boolean) => {
+    if (isOnboarded) {
+      e.preventDefault();
+      try {
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          window.location.href = `${href}?access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
+          return;
+        }
+      } catch (error) {
+        console.error('Error fetching session for redirect:', error);
+      }
+      window.location.href = href;
+    }
+  };
 
   if (loading) {
     return (
@@ -30,6 +48,7 @@ export default function ChooseRolePage() {
       description: "Search our elite directory of verified founders, connect with potential partners, or find investment opportunities.",
       icon: <Search className="w-12 h-12 text-[#0F6E56]" />,
       href: isUserOnboarded ? userDashboardUrl : "/onboarding?role=user",
+      isOnboarded: isUserOnboarded,
       buttonText: isUserOnboarded ? "Go to Dashboard" : "Get Started",
       color: "bg-[#E1F5EE]"
     },
@@ -38,6 +57,7 @@ export default function ChooseRolePage() {
       description: "Join our exclusive network of founders. Share your story, attract investors, and connect with fellow entrepreneurs.",
       icon: <UserPlus className="w-12 h-12 text-[#0F6E56]" />,
       href: isFounderOnboarded ? founderDashboardUrl : "/onboarding?role=founder",
+      isOnboarded: isFounderOnboarded,
       buttonText: isFounderOnboarded ? "Go to Dashboard" : "Create Profile",
       color: "bg-[#F0FDF4]"
     }
@@ -60,6 +80,7 @@ export default function ChooseRolePage() {
             <Link
               key={i}
               href={role.href}
+              onClick={(e) => handleRoleClick(e, role.href, !!role.isOnboarded)}
               className="group bg-white p-10 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-[#0F6E56]/30 transition-all duration-300 flex flex-col items-center text-center"
             >
               <div className={`w-24 h-24 ${role.color} rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300`}>
