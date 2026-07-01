@@ -14,8 +14,8 @@ export default function ChooseRolePage() {
   const userDashboardUrl = getUserDashboardUrl();
   const founderDashboardUrl = getFounderDashboardUrl();
 
-  const isUserOnboarded = !loading && user && profile?.onboarding_completed && profile.role === 'user';
-  const isFounderOnboarded = !loading && user && profile?.onboarding_completed && profile.role === 'founder';
+  const isUserOnboarded = !loading && user && profile?.user_onboarding_completed;
+  const isFounderOnboarded = !loading && user && profile?.founder_onboarding_completed;
 
   const handleRoleClick = async (e: React.MouseEvent<HTMLAnchorElement>, href: string, isOnboarded: boolean) => {
     if (isOnboarded) {

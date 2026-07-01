@@ -11,6 +11,8 @@ export interface Profile {
   role: 'user' | 'founder'
   onboarding_completed: boolean
   created_at: string
+  user_onboarding_completed?: boolean
+  founder_onboarding_completed?: boolean
 }
 
 export function useUser() {
@@ -75,7 +77,26 @@ export function useUser() {
           .select('*')
           .eq('id', user.id)
           .single()
-        if (mounted) setProfile(profileData as Profile)
+
+        const { data: userPref } = await supabase
+          .from('user_preferences')
+          .select('id')
+          .eq('id', user.id)
+          .maybeSingle()
+
+        const { data: founderProf } = await supabase
+          .from('founder_profiles')
+          .select('id')
+          .eq('id', user.id)
+          .maybeSingle()
+
+        const updatedProfile = profileData ? {
+          ...profileData,
+          user_onboarding_completed: !!userPref,
+          founder_onboarding_completed: !!founderProf,
+        } : null;
+
+        if (mounted) setProfile(updatedProfile as Profile)
       } else {
         if (mounted) setProfile(null)
       }
@@ -98,7 +119,26 @@ export function useUser() {
             .select('*')
             .eq('id', currentUser.id)
             .single()
-          setProfile(profileData as Profile)
+
+          const { data: userPref } = await supabase
+            .from('user_preferences')
+            .select('id')
+            .eq('id', currentUser.id)
+            .maybeSingle()
+
+          const { data: founderProf } = await supabase
+            .from('founder_profiles')
+            .select('id')
+            .eq('id', currentUser.id)
+            .maybeSingle()
+
+          const updatedProfile = profileData ? {
+            ...profileData,
+            user_onboarding_completed: !!userPref,
+            founder_onboarding_completed: !!founderProf,
+          } : null;
+
+          setProfile(updatedProfile as Profile)
         } else {
           setProfile(null)
         }

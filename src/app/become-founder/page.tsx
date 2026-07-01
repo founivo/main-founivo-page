@@ -19,7 +19,7 @@ export default function BecomeFounderLanding() {
       window.location.href = '/sign-in';
       return;
     }
-    if (profile?.onboarding_completed && profile?.role === 'founder') {
+    if (profile?.founder_onboarding_completed) {
       try {
         const supabase = createClient();
         const { data: { session } } = await supabase.auth.getSession();

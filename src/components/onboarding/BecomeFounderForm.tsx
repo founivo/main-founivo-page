@@ -30,7 +30,7 @@ export default function BecomeFounderForm() {
   const hasInitialized = React.useRef(false);
 
   useEffect(() => {
-    if (profile?.full_name && !hasInitialized.current) {
+    if (profile?.founder_onboarding_completed && profile?.full_name && !hasInitialized.current) {
       setFormData(prev => ({ ...prev, name: profile.full_name || '' }));
       hasInitialized.current = true;
     }

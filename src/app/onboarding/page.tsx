@@ -20,18 +20,18 @@ function OnboardingContent() {
 
   useEffect(() => {
     const handleOnboardedRedirect = async () => {
-      if (!loading && user && profile?.onboarding_completed) {
+      if (!loading && user) {
         try {
           const supabase = createClient();
           const { data: { session } } = await supabase.auth.getSession();
-          if (role === 'founder' && profile.role === 'founder') {
+          if (role === 'founder' && profile?.founder_onboarding_completed) {
             const baseUrl = getFounderDashboardUrl();
             if (session) {
               window.location.href = `${baseUrl}?access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
               return;
             }
             window.location.href = baseUrl;
-          } else if (role === 'user' && profile.role === 'user') {
+          } else if (role === 'user' && profile?.user_onboarding_completed) {
             const baseUrl = getUserDashboardUrl();
             if (session) {
               window.location.href = `${baseUrl}?access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
@@ -41,9 +41,9 @@ function OnboardingContent() {
           }
         } catch (error) {
           console.error('Error fetching session for redirect:', error);
-          if (role === 'founder' && profile.role === 'founder') {
+          if (role === 'founder' && profile?.founder_onboarding_completed) {
             window.location.href = getFounderDashboardUrl();
-          } else if (role === 'user' && profile.role === 'user') {
+          } else if (role === 'user' && profile?.user_onboarding_completed) {
             window.location.href = getUserDashboardUrl();
           }
         }
@@ -60,7 +60,12 @@ function OnboardingContent() {
     );
   }
 
-  if (user && profile?.onboarding_completed && role === profile.role) {
+  const isRedirecting = user && (
+    (role === 'founder' && profile?.founder_onboarding_completed) ||
+    (role === 'user' && profile?.user_onboarding_completed)
+  );
+
+  if (isRedirecting) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Loader2 className="w-10 h-10 animate-spin text-[#0F6E56]" />
