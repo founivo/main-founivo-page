@@ -16,7 +16,7 @@ const Navbar = () => {
   const { user, profile, loading } = useUser();
   const LogoIcon = APP_LOGO;
 
-  if (pathname === "/onboarding") return null;
+  if (pathname?.startsWith("/onboarding")) return null;
 
   const navLinks = [
     { name: "Find Founder", href: "/find-founder" },

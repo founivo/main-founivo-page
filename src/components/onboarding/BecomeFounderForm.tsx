@@ -70,7 +70,6 @@ export default function BecomeFounderForm() {
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
-          full_name: formData.name,
           role: 'founder',
           onboarding_completed: true,
         })
@@ -83,6 +82,7 @@ export default function BecomeFounderForm() {
         .from('founder_profiles')
         .upsert({
           id: user.id,
+          full_name: formData.name,
           role: formData.role,
           company: formData.company,
           category: formData.category,

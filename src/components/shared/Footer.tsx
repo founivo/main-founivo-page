@@ -9,7 +9,7 @@ const Footer = () => {
   const pathname = usePathname();
   const LogoIcon = APP_LOGO;
 
-  if (pathname === "/onboarding") return null;
+  if (pathname?.startsWith("/onboarding")) return null;
 
   const footerLinks = [
     {
