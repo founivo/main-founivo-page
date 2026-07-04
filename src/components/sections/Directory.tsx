@@ -1,22 +1,46 @@
 "use client";
-import React, { useState } from 'react';
-import { Search, Lock, SlidersHorizontal } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Lock, SlidersHorizontal, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageWrapper } from '../shared/PageWrapper';
 import FounderCard from '../ui/FounderCard';
-import { FOUNDERS } from '@/data/founders';
+import { Founder, FOUNDERS } from '@/data/founders';
 import { CATS } from '@/data/constants';
 
 const Directory = () => {
   const [plan, setPlan] = useState<"none" | "starter" | "pro" | "annual">("none");
   const [cat, setCat] = useState("All");
   const [search, setSearch] = useState("");
+  const [founders, setFounders] = useState<Founder[]>(FOUNDERS);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const sheetUrl = process.env.NEXT_PUBLIC_GOOGLE_SHEET_CSV_URL;
+    if (!sheetUrl) return;
+
+    const loadFounders = async () => {
+      setLoading(true);
+      try {
+        const { fetchFoundersFromGoogleSheet } = await import('@/lib/googleSheets');
+        const data = await fetchFoundersFromGoogleSheet(sheetUrl);
+        if (data && data.length > 0) {
+          setFounders(data);
+        }
+      } catch (err) {
+        console.error("Failed to load founders from Google Sheet, falling back to local data.", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFounders();
+  }, []);
 
   const canSeeEmail = plan !== "none";
   const canSeeSocial = plan !== "none";
   const canSeePhone = plan === "pro" || plan === "annual";
 
-  const filteredFounders = FOUNDERS.filter(f => {
+  const filteredFounders = founders.filter(f => {
     if (cat !== "All" && f.cat !== cat) return false;
     if (search && !f.name.toLowerCase().includes(search.toLowerCase()) && !f.company.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
@@ -59,6 +83,9 @@ const Directory = () => {
             <span className="text-sm font-medium text-[#3a6b57]">
               {filteredFounders.length} founders found
             </span>
+            {loading && (
+              <Loader2 className="animate-spin text-[#0F6E56]" size={16} />
+            )}
             {plan === "none" && (
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#E1F5EE] border border-[#b6ead7]">
                 <Lock size={12} className="text-[#0F6E56]" />

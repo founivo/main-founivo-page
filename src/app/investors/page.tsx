@@ -54,7 +54,7 @@ export default function InvestorsPage() {
                 </Button>
              </Link>
              <Link href="/contact">
-                <Button className="px-10 py-4 bg-white text-[#0F6E56] border-2 border-[#0F6E56]/10 text-lg rounded-2xl hover:bg-[#0F6E56]/5">
+                <Button variant="white" className="px-10 py-4 bg-white text-[#0F6E56] border-2 border-[#0F6E56]/10 text-lg rounded-2xl hover:bg-[#0F6E56]/5">
                     Schedule a Demo
                 </Button>
              </Link>
