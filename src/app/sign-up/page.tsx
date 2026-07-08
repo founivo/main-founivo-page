@@ -2,9 +2,55 @@ import { signup, signInWithGoogle, signInWithLinkedIn } from '../auth/actions'
 import Link from 'next/link'
 import { PageWrapper } from '@/components/shared/PageWrapper'
 import Button from '@/components/ui/Button'
+import { createClient } from '@/utils/supabase/server'
+import { redirect } from 'next/navigation'
+import { getUserDashboardUrl, getFounderDashboardUrl } from '@/lib/config'
 
 export default async function SignupPage(props: { searchParams: Promise<{ error?: string }> }) {
   const searchParams = await props.searchParams;
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (profile) {
+      const { data: userPref } = await supabase
+        .from('user_preferences')
+        .select('id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      const { data: founderProf } = await supabase
+        .from('founder_profiles')
+        .select('id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (profile.role === 'founder') {
+        if (founderProf) {
+          redirect(getFounderDashboardUrl());
+        } else {
+          redirect('/onboarding?role=founder');
+        }
+      } else if (profile.role === 'user') {
+        if (userPref) {
+          redirect(getUserDashboardUrl());
+        } else {
+          redirect('/onboarding?role=user');
+        }
+      } else {
+        redirect('/choose-role');
+      }
+    } else {
+      redirect('/choose-role');
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#f8faf9] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-inter">

@@ -3,14 +3,37 @@
 import { login, signInWithGoogle, signInWithLinkedIn } from '../auth/actions'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { Suspense, useState } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { PageWrapper } from '@/components/shared/PageWrapper'
 import Button from '@/components/ui/Button'
+import { useUser } from '@/hooks/useUser'
+import { getUserDashboardUrl, getFounderDashboardUrl } from '@/lib/config'
 
 function LoginForm() {
   const searchParams = useSearchParams()
   const [error, setError] = useState(searchParams.get('error') || '')
   const [loading, setLoading] = useState(false)
+  const { user, profile, loading: authLoading } = useUser()
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      if (profile) {
+        if (profile.role === 'founder') {
+          window.location.href = profile.founder_onboarding_completed 
+            ? getFounderDashboardUrl() 
+            : '/onboarding?role=founder';
+        } else if (profile.role === 'user') {
+          window.location.href = profile.user_onboarding_completed 
+            ? getUserDashboardUrl() 
+            : '/onboarding?role=user';
+        } else {
+          window.location.href = '/choose-role';
+        }
+      } else {
+        window.location.href = '/choose-role';
+      }
+    }
+  }, [user, profile, authLoading]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()

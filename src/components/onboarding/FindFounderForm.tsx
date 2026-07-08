@@ -1,12 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Button from '@/components/ui/Button';
-import { ArrowRight, CheckCircle2, User, Search, Target, Briefcase, Loader2, MapPin, Sparkles, Check } from 'lucide-react';
+import { ArrowRight, CheckCircle2, User, Search, Target, Briefcase, Loader2, MapPin, Sparkles, Check, Camera } from 'lucide-react';
 import Link from 'next/link';
 import { useUser } from '@/hooks/useUser';
 import { createClient } from '@/utils/supabase/client';
 import { getUserDashboardUrl } from '@/lib/config';
+
+const DEFAULT_AVATAR = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80";
 
 export default function FindFounderForm() {
   const { user, profile, loading: userLoading } = useUser();
@@ -16,17 +18,21 @@ export default function FindFounderForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Hidden File Upload reference
+  const personalFileRef = useRef<HTMLInputElement>(null);
+
   const [formData, setFormData] = useState({
     name: '',
     industry: '',
     location: '',
     purpose: '',
   });
+  const [personalPhoto, setPersonalPhoto] = useState(DEFAULT_AVATAR);
 
   const hasInitialized = React.useRef(false);
 
   useEffect(() => {
-    if (profile?.user_onboarding_completed && profile?.full_name && !hasInitialized.current) {
+    if (profile?.full_name && !hasInitialized.current) {
       setFormData(prev => ({ ...prev, name: profile.full_name || '' }));
       hasInitialized.current = true;
     }
@@ -54,6 +60,51 @@ export default function FindFounderForm() {
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image is too large. Please select an image under 5MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        
+        const MAX_WIDTH = 180;
+        const MAX_HEIGHT = 180;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width = Math.round((width * MAX_HEIGHT) / height);
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+        setPersonalPhoto(dataUrl);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
@@ -62,7 +113,7 @@ export default function FindFounderForm() {
     setError(null);
 
     try {
-      // 1. Update profile
+      // 1. Update basic profile name and completion state
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
@@ -74,14 +125,20 @@ export default function FindFounderForm() {
 
       if (profileError) throw profileError;
 
-      // 2. Insert preferences
+      // 2. Serialize photo metadata inside purpose column
+      const marker = "\n\n---METADATA---\n";
+      const serializedPurpose = formData.purpose + marker + JSON.stringify({
+        avatar: personalPhoto
+      });
+
+      // 3. Insert user preferences to declare user onboarding completed
       const { error: prefError } = await supabase
         .from('user_preferences')
         .upsert({
           id: user.id,
           industry: formData.industry,
           location: formData.location,
-          purpose: formData.purpose,
+          purpose: serializedPurpose,
         });
 
       if (prefError) throw prefError;
@@ -133,6 +190,10 @@ export default function FindFounderForm() {
 
   return (
     <div className="animate-fade-up max-w-2xl mx-auto px-4">
+      
+      {/* Hidden File input for avatar */}
+      <input type="file" ref={personalFileRef} style={{ display: 'none' }} accept="image/*" onChange={handleImageChange} />
+
       {/* Progress Tracker */}
       {step < 4 && (
         <div className="mb-10">
@@ -157,7 +218,7 @@ export default function FindFounderForm() {
               </div>
             ))}
           </div>
-          <div className="flex justify-between mt-3 text-xs font-bold font-syne tracking-wider text-[#3a6b57] px-1 uppercase">
+          <div className="flex justify-between mt-3 text-[11px] font-extrabold font-syne tracking-wider text-[#3a6b57] px-1 uppercase">
             <span>Basic Info</span>
             <span className="text-center pl-4">Preferences</span>
             <span>Primary Goal</span>
@@ -173,26 +234,57 @@ export default function FindFounderForm() {
           </div>
         )}
 
+        {/* STEP 1: INTRODUCE YOURSELF & PICTURE */}
         {step === 1 && (
           <div className="animate-fade-up">
-            <div className="mb-8">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E1F5EE] text-[#0F6E56] text-xs font-bold mb-3 uppercase tracking-wider">
-                Step 1 of 3
+            <div className="mb-8 text-center flex flex-col items-center">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E1F5EE] text-[#0F6E56] text-xs font-bold mb-4 uppercase tracking-wider">
+                Step 1 of 3: User Profile
               </span>
               <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800 }} className="text-2xl text-[#04342C] flex items-center gap-2">
                 <User size={24} className="text-[#0F6E56]" /> Introduce Yourself
               </h2>
-              <p className="text-sm text-[#3a6b57] mt-1">Let&apos;s get some basic information to set up your profile.</p>
+              <p className="text-sm text-[#3a6b57] mt-1">Provide your name and select a profile photo.</p>
             </div>
             
             <div className="space-y-6">
+              
+              {/* Circular Avatar Photo Upload */}
+              <div className="flex flex-col items-center gap-3 mb-4">
+                <div 
+                  onClick={() => personalFileRef.current?.click()}
+                  className="relative w-24 h-24 rounded-full border-4 border-white shadow-md bg-gray-50 flex items-center justify-center cursor-pointer group overflow-hidden"
+                >
+                  <img src={personalPhoto} alt="Personal Photo" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                    <Camera size={18} />
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <button 
+                    type="button" 
+                    onClick={() => personalFileRef.current?.click()}
+                    className="text-xs font-bold text-[#0F6E56] hover:underline"
+                  >
+                    Upload Photo
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => setPersonalPhoto(DEFAULT_AVATAR)}
+                    className="text-xs font-bold text-gray-400 hover:underline"
+                  >
+                    Skip Upload
+                  </button>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-bold text-[#04342C] mb-2">Full Name</label>
                 <div className="relative">
                   <input 
                     type="text" 
                     placeholder="Enter your full name"
-                    className="w-full pl-5 pr-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-[#0F6E56] focus:ring-4 focus:ring-[#0F6E56]/10 outline-none transition-all text-[#04342C] font-semibold placeholder-gray-400 bg-gray-50/30"
+                    className="w-full pl-5 pr-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-[#0F6E56] focus:ring-4 focus:ring-[#0F6E56]/10 outline-none transition-all text-[#04342C] font-semibold bg-gray-50/30"
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                   />
@@ -221,11 +313,12 @@ export default function FindFounderForm() {
           </div>
         )}
 
+        {/* STEP 2: SEARCH PREFERENCES */}
         {step === 2 && (
           <div className="animate-fade-up">
             <div className="mb-8">
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E1F5EE] text-[#0F6E56] text-xs font-bold mb-3 uppercase tracking-wider">
-                Step 2 of 3
+                Step 2 of 3: Preferences
               </span>
               <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800 }} className="text-2xl text-[#04342C] flex items-center gap-2">
                 <Briefcase size={24} className="text-[#0F6E56]" /> Search Criteria
@@ -243,11 +336,11 @@ export default function FindFounderForm() {
                     onChange={(e) => setFormData({...formData, industry: e.target.value})}
                   >
                     <option value="">Any Industry</option>
-                    <option value="AI">Artificial Intelligence (AI)</option>
+                    <option value="AI / ML">Artificial Intelligence (AI / ML)</option>
                     <option value="SaaS">Software as a Service (SaaS)</option>
                     <option value="Fintech">Fintech</option>
                     <option value="Healthtech">Healthtech</option>
-                    <option value="Web3">Web3 / Crypto</option>
+                    <option value="Web3 / DeFi">Web3 / DeFi</option>
                     <option value="E-commerce">E-commerce</option>
                   </select>
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#0F6E56]">
@@ -265,23 +358,23 @@ export default function FindFounderForm() {
                   <input 
                     type="text" 
                     placeholder="e.g. San Francisco, Remote, London"
-                    className="w-full pl-11 pr-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-[#0F6E56] focus:ring-4 focus:ring-[#0F6E56]/10 outline-none transition-all text-[#04342C] font-semibold placeholder-gray-400 bg-gray-50/30"
+                    className="w-full pl-11 pr-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-[#0F6E56] focus:ring-4 focus:ring-[#0F6E56]/10 outline-none transition-all text-[#04342C] font-semibold bg-gray-50/30"
                     value={formData.location}
                     onChange={(e) => setFormData({...formData, location: e.target.value})}
                   />
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <div className="flex gap-4 pt-4">
                 <Button 
                   onClick={prevStep} 
-                  className="flex-1 py-4.5 border-2 border-gray-100 text-[#3a6b57] font-syne font-bold rounded-2xl hover:bg-gray-50 transition-all cursor-pointer"
+                  className="flex-1 py-4 border-2 border-gray-100 text-[#3a6b57] font-syne font-bold rounded-2xl hover:bg-gray-50 transition-all cursor-pointer"
                 >
                   Back
                 </Button>
                 <Button 
                   onClick={nextStep} 
-                  className="flex-[2] py-4.5 bg-[#0F6E56] text-white hover:bg-[#085041] font-syne font-bold rounded-2xl shadow-lg shadow-[#0F6E56]/10 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="flex-[2] py-4 bg-[#0F6E56] text-white hover:bg-[#085041] font-syne font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   Continue <ArrowRight size={18} />
                 </Button>
@@ -290,11 +383,12 @@ export default function FindFounderForm() {
           </div>
         )}
 
+        {/* STEP 3: PRIMARY GOAL & FINISH */}
         {step === 3 && (
           <div className="animate-fade-up">
             <div className="mb-8">
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E1F5EE] text-[#0F6E56] text-xs font-bold mb-3 uppercase tracking-wider">
-                Step 3 of 3
+                Step 3 of 3: Primary Goal
               </span>
               <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800 }} className="text-2xl text-[#04342C] flex items-center gap-2">
                 <Target size={24} className="text-[#0F6E56]" /> What is your primary goal?
@@ -338,17 +432,17 @@ export default function FindFounderForm() {
                 ))}
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <div className="flex gap-4 pt-4">
                 <Button 
                   onClick={prevStep} 
-                  className="flex-1 py-4.5 border-2 border-gray-100 text-[#3a6b57] font-syne font-bold rounded-2xl hover:bg-gray-50 transition-all cursor-pointer"
+                  className="flex-1 py-4 border-2 border-gray-100 text-[#3a6b57] font-syne font-bold rounded-2xl hover:bg-gray-50 transition-all cursor-pointer"
                 >
                   Back
                 </Button>
                 <Button 
                   onClick={handleSubmit} 
                   disabled={!formData.purpose || isSubmitting} 
-                  className="flex-[2] py-4.5 bg-[#0F6E56] text-white hover:bg-[#085041] font-syne font-bold rounded-2xl shadow-lg shadow-[#0F6E56]/10 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  className="flex-[2] py-4 bg-[#0F6E56] text-white hover:bg-[#085041] font-syne font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin" /> Saving...</span>
@@ -361,6 +455,7 @@ export default function FindFounderForm() {
           </div>
         )}
 
+        {/* STEP 4: SUCCESS REDIRECT */}
         {step === 4 && (
           <div className="animate-fade-up text-center py-8">
             <div className="w-24 h-24 bg-[#E1F5EE] text-[#0F6E56] rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-inner ring-8 ring-[#E1F5EE]/50 animate-bounce">
