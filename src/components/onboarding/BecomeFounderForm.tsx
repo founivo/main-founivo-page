@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Button from '@/components/ui/Button';
 import { 
   ArrowRight, CheckCircle2, User, Globe, Briefcase, Award, 
-  DollarSign, Loader2, Check, Sparkles, Camera, Plus, Trash2, Clock, Star, Building
+  DollarSign, Loader2, Check, Sparkles, Camera, Plus, Trash2, Clock, Star, Building, Upload
 } from 'lucide-react';
 import Link from 'next/link';
 import { useUser } from '@/hooks/useUser';
@@ -30,7 +30,7 @@ export default function BecomeFounderForm() {
   const [name, setName] = useState('');
   const [role, setRole] = useState('');
   const [bio, setBio] = useState('');
-  const [personalPhoto, setPersonalPhoto] = useState(DEFAULT_AVATAR);
+  const [personalPhoto, setPersonalPhoto] = useState('');
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkillText, setNewSkillText] = useState('');
 
@@ -49,7 +49,7 @@ export default function BecomeFounderForm() {
   const [startupTeamSizeVal, setStartupTeamSizeVal] = useState('1-5');
   const [startupFunding, setStartupFunding] = useState('');
   const [startupBio, setStartupBio] = useState('');
-  const [startupLogo, setStartupLogo] = useState(DEFAULT_LOGO);
+  const [startupLogo, setStartupLogo] = useState('');
 
   // Social Links
   const [linkedin, setLinkedin] = useState('');
@@ -323,9 +323,16 @@ export default function BecomeFounderForm() {
               <div className="flex flex-col items-center gap-3 mb-4">
                 <div 
                   onClick={() => personalFileRef.current?.click()}
-                  className="relative w-24 h-24 rounded-full border-4 border-white shadow-md bg-gray-50 flex items-center justify-center cursor-pointer group overflow-hidden"
+                  className="relative w-24 h-24 rounded-full border-4 border-white shadow-md bg-gray-50 flex items-center justify-center cursor-pointer group overflow-hidden hover:bg-gray-100 transition-colors"
                 >
-                  <img src={personalPhoto} alt="Personal Photo" className="w-full h-full object-cover" />
+                  {personalPhoto ? (
+                    <img src={personalPhoto} alt="Personal Photo" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-gray-400">
+                      <Upload size={24} />
+                      <span className="text-[10px] font-bold mt-1 uppercase">Upload</span>
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
                     <Camera size={18} />
                   </div>
@@ -338,13 +345,15 @@ export default function BecomeFounderForm() {
                   >
                     Upload Avatar
                   </button>
-                  <button 
-                    type="button" 
-                    onClick={() => setPersonalPhoto(DEFAULT_AVATAR)}
-                    className="text-xs font-bold text-gray-400 hover:underline"
-                  >
-                    Skip / Default
-                  </button>
+                  {personalPhoto && (
+                    <button 
+                      type="button" 
+                      onClick={() => setPersonalPhoto("")}
+                      className="text-xs font-bold text-red-500 hover:underline"
+                    >
+                      Remove Avatar
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -410,9 +419,16 @@ export default function BecomeFounderForm() {
               <div className="flex flex-col items-center gap-3 mb-4">
                 <div 
                   onClick={() => startupFileRef.current?.click()}
-                  className="relative w-20 h-20 rounded-2xl border-2 border-gray-100 bg-gray-50 flex items-center justify-center cursor-pointer group overflow-hidden"
+                  className="relative w-20 h-20 rounded-2xl border-2 border-gray-100 bg-gray-50 flex items-center justify-center cursor-pointer group overflow-hidden hover:bg-gray-100 transition-colors"
                 >
-                  <img src={startupLogo} alt="Startup Logo" className="w-full h-full object-cover" />
+                  {startupLogo ? (
+                    <img src={startupLogo} alt="Startup Logo" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-gray-400">
+                      <Upload size={20} />
+                      <span className="text-[9px] font-bold mt-1 uppercase">Upload</span>
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
                     <Camera size={16} />
                   </div>
@@ -425,13 +441,15 @@ export default function BecomeFounderForm() {
                   >
                     Upload Logo
                   </button>
-                  <button 
-                    type="button" 
-                    onClick={() => setStartupLogo(DEFAULT_LOGO)}
-                    className="text-xs font-bold text-gray-400 hover:underline"
-                  >
-                    Skip / Default
-                  </button>
+                  {startupLogo && (
+                    <button 
+                      type="button" 
+                      onClick={() => setStartupLogo("")}
+                      className="text-xs font-bold text-red-500 hover:underline"
+                    >
+                      Remove Logo
+                    </button>
+                  )}
                 </div>
               </div>
 

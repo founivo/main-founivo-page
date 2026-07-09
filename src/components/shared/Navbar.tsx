@@ -67,8 +67,14 @@ const Navbar = () => {
                   onMouseLeave={() => setShowProfileDropdown(false)}
                 >
                   <button className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-50 transition-colors border border-gray-100">
-                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#0F6E56] flex items-center justify-center text-white text-xs sm:text-sm font-bold">
-                      {profile?.full_name ? getInitials(profile.full_name) : <User size={18} />}
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#0F6E56] flex items-center justify-center text-white text-xs sm:text-sm font-bold overflow-hidden">
+                      {profile?.avatar_url ? (
+                        <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                      ) : profile?.full_name ? (
+                        getInitials(profile.full_name)
+                      ) : (
+                        <User size={18} />
+                      )}
                     </div>
                     <ChevronDown size={14} className={`hidden sm:block text-gray-400 transition-transform ${showProfileDropdown ? 'rotate-180' : ''}`} />
                   </button>
@@ -149,8 +155,14 @@ const Navbar = () => {
             {user ? (
               <>
                 <div className="flex items-center gap-3 px-1 mb-2">
-                  <div className="w-10 h-10 rounded-full bg-[#0F6E56] flex items-center justify-center text-white font-bold">
-                    {profile?.full_name ? getInitials(profile.full_name) : <User size={24} />}
+                  <div className="w-10 h-10 rounded-full bg-[#0F6E56] flex items-center justify-center text-white font-bold overflow-hidden">
+                    {profile?.avatar_url ? (
+                      <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                    ) : profile?.full_name ? (
+                      getInitials(profile.full_name)
+                    ) : (
+                      <User size={24} />
+                    )}
                   </div>
                   <div>
                     <p className="text-sm font-bold text-[#04342C]">{profile?.full_name || user.email}</p>

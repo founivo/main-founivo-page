@@ -13,6 +13,7 @@ export interface Profile {
   created_at: string
   user_onboarding_completed?: boolean
   founder_onboarding_completed?: boolean
+  avatar_url?: string | null
 }
 
 export function useUser() {
@@ -80,20 +81,51 @@ export function useUser() {
 
         const { data: userPref } = await supabase
           .from('user_preferences')
-          .select('id')
+          .select('id, purpose')
           .eq('id', user.id)
           .maybeSingle()
 
         const { data: founderProf } = await supabase
           .from('founder_profiles')
-          .select('id')
+          .select('id, bio')
           .eq('id', user.id)
           .maybeSingle()
+
+        let avatarUrl: string | null = null;
+        if (founderProf?.bio) {
+          const marker = "\n\n---METADATA---\n";
+          const idx = founderProf.bio.indexOf(marker);
+          if (idx !== -1) {
+            try {
+              const meta = JSON.parse(founderProf.bio.substring(idx + marker.length));
+              if (meta.personal_photo) {
+                avatarUrl = meta.personal_photo;
+              }
+            } catch (e) {
+              console.error("Error parsing founder profile metadata:", e);
+            }
+          }
+        }
+        if (!avatarUrl && userPref?.purpose) {
+          const marker = "\n\n---METADATA---\n";
+          const idx = userPref.purpose.indexOf(marker);
+          if (idx !== -1) {
+            try {
+              const meta = JSON.parse(userPref.purpose.substring(idx + marker.length));
+              if (meta.avatar) {
+                avatarUrl = meta.avatar;
+              }
+            } catch (e) {
+              console.error("Error parsing user preferences metadata:", e);
+            }
+          }
+        }
 
         const updatedProfile = profileData ? {
           ...profileData,
           user_onboarding_completed: !!userPref,
           founder_onboarding_completed: !!founderProf,
+          avatar_url: avatarUrl,
         } : null;
 
         if (mounted) setProfile(updatedProfile as Profile)
@@ -122,20 +154,51 @@ export function useUser() {
 
           const { data: userPref } = await supabase
             .from('user_preferences')
-            .select('id')
+            .select('id, purpose')
             .eq('id', currentUser.id)
             .maybeSingle()
 
           const { data: founderProf } = await supabase
             .from('founder_profiles')
-            .select('id')
+            .select('id, bio')
             .eq('id', currentUser.id)
             .maybeSingle()
+
+          let avatarUrl: string | null = null;
+          if (founderProf?.bio) {
+            const marker = "\n\n---METADATA---\n";
+            const idx = founderProf.bio.indexOf(marker);
+            if (idx !== -1) {
+              try {
+                const meta = JSON.parse(founderProf.bio.substring(idx + marker.length));
+                if (meta.personal_photo) {
+                  avatarUrl = meta.personal_photo;
+                }
+              } catch (e) {
+                console.error("Error parsing founder profile metadata:", e);
+              }
+            }
+          }
+          if (!avatarUrl && userPref?.purpose) {
+            const marker = "\n\n---METADATA---\n";
+            const idx = userPref.purpose.indexOf(marker);
+            if (idx !== -1) {
+              try {
+                const meta = JSON.parse(userPref.purpose.substring(idx + marker.length));
+                if (meta.avatar) {
+                  avatarUrl = meta.avatar;
+                }
+              } catch (e) {
+                console.error("Error parsing user preferences metadata:", e);
+              }
+            }
+          }
 
           const updatedProfile = profileData ? {
             ...profileData,
             user_onboarding_completed: !!userPref,
             founder_onboarding_completed: !!founderProf,
+            avatar_url: avatarUrl,
           } : null;
 
           setProfile(updatedProfile as Profile)

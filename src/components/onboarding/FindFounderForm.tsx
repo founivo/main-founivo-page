@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Button from '@/components/ui/Button';
-import { ArrowRight, CheckCircle2, User, Search, Target, Briefcase, Loader2, MapPin, Sparkles, Check, Camera } from 'lucide-react';
+import { ArrowRight, CheckCircle2, User, Search, Target, Briefcase, Loader2, MapPin, Sparkles, Check, Camera, Upload } from 'lucide-react';
 import Link from 'next/link';
 import { useUser } from '@/hooks/useUser';
 import { createClient } from '@/utils/supabase/client';
@@ -27,7 +27,7 @@ export default function FindFounderForm() {
     location: '',
     purpose: '',
   });
-  const [personalPhoto, setPersonalPhoto] = useState(DEFAULT_AVATAR);
+  const [personalPhoto, setPersonalPhoto] = useState("");
 
   const hasInitialized = React.useRef(false);
 
@@ -253,9 +253,16 @@ export default function FindFounderForm() {
               <div className="flex flex-col items-center gap-3 mb-4">
                 <div 
                   onClick={() => personalFileRef.current?.click()}
-                  className="relative w-24 h-24 rounded-full border-4 border-white shadow-md bg-gray-50 flex items-center justify-center cursor-pointer group overflow-hidden"
+                  className="relative w-24 h-24 rounded-full border-4 border-white shadow-md bg-gray-50 flex items-center justify-center cursor-pointer group overflow-hidden hover:bg-gray-100 transition-colors"
                 >
-                  <img src={personalPhoto} alt="Personal Photo" className="w-full h-full object-cover" />
+                  {personalPhoto ? (
+                    <img src={personalPhoto} alt="Personal Photo" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-gray-400">
+                      <Upload size={24} />
+                      <span className="text-[10px] font-bold mt-1 uppercase">Upload</span>
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
                     <Camera size={18} />
                   </div>
@@ -268,13 +275,15 @@ export default function FindFounderForm() {
                   >
                     Upload Photo
                   </button>
-                  <button 
-                    type="button" 
-                    onClick={() => setPersonalPhoto(DEFAULT_AVATAR)}
-                    className="text-xs font-bold text-gray-400 hover:underline"
-                  >
-                    Skip Upload
-                  </button>
+                  {personalPhoto && (
+                    <button 
+                      type="button" 
+                      onClick={() => setPersonalPhoto("")}
+                      className="text-xs font-bold text-red-500 hover:underline"
+                    >
+                      Remove Photo
+                    </button>
+                  )}
                 </div>
               </div>
 
